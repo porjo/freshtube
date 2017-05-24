@@ -13,7 +13,7 @@ body {
 
 .video_list {
 	display: flex;
-	align-items: flex-start;
+	align-items: stretch;
 }
 
 .channel_title {
