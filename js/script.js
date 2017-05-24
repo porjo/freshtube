@@ -17,7 +17,9 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 
 	if (typeof(Storage) !== "undefined") {
 		var l = JSON.parse(localStorage.getItem("lines"));
-		$("#video_urls").val(l.join('\n'));
+		if(l) {
+			$("#video_urls").val(l.join('\n'));
+		}
 		$("#apikey").val(localStorage.getItem("apikey"));
 	}
 
@@ -37,8 +39,8 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		}
 
 		$.each(lines, function(k, line) {
-			$("#search_input").slideUp();
 			if( line.trim() == "" ) {return; }
+			$("#search_input").slideUp();
 			var url = channelURL + "&key=" + key;
 			var chanMatches = line.match(channelRe);
 			var userMatches = line.match(userRe);
