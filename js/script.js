@@ -34,6 +34,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	$("#refresh_button").click(function() {
 		key = $("#apikey").val();
 		stepCount = 0;
+		ids = [];
 		var lines = $("#video_urls").val().split(/\n/);
 		$("#videos").html('');
 
