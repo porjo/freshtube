@@ -23,6 +23,10 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		$("#apikey").val(localStorage.getItem("apikey"));
 	}
 
+	$("body").on("click", ".close", function() {
+		$(this).closest(".channel").slideUp();
+	});
+
 	$("#showhide").click(function() {
 		$("#search_input").slideToggle();
 	});
@@ -79,6 +83,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		videos += "<div class='video_list'>";
 		$.each(data.items, videoHTML);
 		videos += "</div>";
+		videos += "<div class='close'></div>";
 		videos += "</div>";
 		$("#videos").append( videos );
 

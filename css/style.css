@@ -8,6 +8,7 @@ body {
 
 .channel {
 	padding: 10px;
+	position: relative;
 }
 
 .video_list {
@@ -70,3 +71,30 @@ body {
 	background-color: rgba(0,0,0,0.5);
 	padding: 2px;
 }
+
+/* Close symbol, credit to https://codepen.io/brissmyr/pen/egidw */
+.close {
+	position: absolute;
+	left: -20px;
+	top: 16px;
+	width: 16px;
+	height: 16px;
+	opacity: 0.5;
+}
+.close:hover {
+	opacity: 1;
+}
+.close:before, .close:after {
+	position: absolute;
+	content: ' ';
+	height: 17px;
+	width: 3px;
+	background-color: #333;
+}
+.close:before {
+	transform: rotate(45deg);
+}
+.close:after {
+	transform: rotate(-45deg);
+}
+
