@@ -3,37 +3,73 @@ var playlistURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snip
 var durationURL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails";
 var watchURL = "https://www.youtube.com/watch";
 
+var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
+var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
+
+
 (function() {
 
-	var count = 0;
+	var stepCount = 0;
 	var ids = [];
-	var key = $("#apikey").val();
 	var videos = "";
+	var key = "";
+	var lines = [];
+
+	if (typeof(Storage) !== "undefined") {
+		var l = JSON.parse(localStorage.getItem("lines"));
+		$("#video_urls").val(l.join('\n'));
+		$("#apikey").val(localStorage.getItem("apikey"));
+	}
+
+	$("#showhide").click(function() {
+		$("#search_input").slideToggle();
+	});
 
 	$("#refresh_button").click(function() {
-		count = 0;
-		var usernames = $("#video_urls").val().split(/\n/);
+		key = $("#apikey").val();
+		stepCount = 0;
+		var lines = $("#video_urls").val().split(/\n/);
 		$("#videos").html('');
-		$.each(usernames, function(k, username) {
-			username = username.trim();
-			if( username == "" ) {return; }
-			var url = channelURL + "&key=" + key + "&forUsername=" + username;
-			count++;
+
+		if (typeof(Storage) !== "undefined") {
+			localStorage.setItem("lines", JSON.stringify(lines));
+			localStorage.setItem("apikey", key);
+		}
+
+		$.each(lines, function(k, line) {
+			$("#search_input").slideUp();
+			if( line.trim() == "" ) {return; }
+			var url = channelURL + "&key=" + key;
+			var chanMatches = line.match(channelRe);
+			var userMatches = line.match(userRe);
+			if( chanMatches && chanMatches.length > 1 ) {
+				url += "&id=" + chanMatches[1];
+			} else if( userMatches && userMatches.length > 1 ) {
+				url += "&forUsername=" + userMatches[1];
+			} else {
+				id = line.trim();
+				if( id.length == 24 ) {
+					url += "&id=" + id;
+				} else {
+					url += "&forUsername=" + id;
+				}
+			}
+			stepCount++;
 			$.get(url, handleChannel);
 		});
 	});
 
 	function handleChannel(data) {
-		count--;
+		stepCount--;
 		if( data.items.length == 0 ) { return; }
 		var playlistID = data.items[0].contentDetails.relatedPlaylists.uploads;
 		url = playlistURL + "&key=" + key + "&playlistId=" + playlistID;
-		count++;
+		stepCount++;
 		$.get(url, handlePlaylist);
 	}
 
 	function handlePlaylist(data) {
-		count--;
+		stepCount--;
 		if( data.items.length == 0 ) { return; }
 		videos = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
@@ -44,7 +80,7 @@ var watchURL = "https://www.youtube.com/watch";
 		videos += "</div>";
 		$("#videos").append( videos );
 
-		if(count == 0) {
+		if(stepCount == 0) {
 			getDurations();
 		}
 	}

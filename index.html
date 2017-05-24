@@ -7,19 +7,40 @@
 		<title>FreshTube</title>
 
 		<link rel="stylesheet" href="css/style.css?v=1.0">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 
 	</head>
 
 	<body>
 
-		<input type='text' id='apikey' size=50><br>
+		<div class="container">
+			<h1>FreshTube</h1>
+			<form id="search_bar" class="well">
+				<div id="search_input">
+					<div class="form-group">
+						<label for='apikey'>API Key</label>
+						<p class='quiet_text'>Use a YouTube API key from the <a href='https://console.developers.google.com'>Google Developer's Console</a>.</p>
+						<input type='text' id='apikey' class="form-control">
+					</div>
+					<div class="form-group">
+						<label for='video_urls'>Channels / Users</label>
+						<p class='quiet_text'>Paste either YouTube URLs containing a username or channel ID (one per line), or just the username or channel ID on its own.</p>
+						<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
+					</div>
+				</div>
+				<div id="refresh_bar">
+					<button id='refresh_button' type="button" class="btn btn-default">Refresh</button>
+					<button id='showhide' type="button" class="btn btn-default">Show / Hide</button>
+				</div>
+			</form>
 
-		<textarea id="video_urls" rows=10 cols=80></textarea><br>
+			<div id='videos'>
 
-		<button id='refresh_button'>Refresh</button><br>
-
-		<div id='videos'>
-
+			</div>
+			<div id="footer">
+				<p class='quiet_text'><strong>Note:</strong> the API key &amp; other data entered will be saved in your browser's local storage and may be visible to other users of this computer.</p>
+			</div>
 		</div>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

@@ -2,6 +2,10 @@ body {
 	font-family: Sans-Serif;
 }
 
+.quiet_text {
+	color: #777;
+}
+
 .channel {
 	padding: 10px;
 }
@@ -14,6 +18,17 @@ body {
 .channel_title {
 	font-size: 1.2em;
 	font-weight: bold;
+}
+
+#footer {
+	border-top: 1px solid #bbb;
+	padding: 10px;
+	margin-top: 20px;
+	font-size: 0.9em;
+}
+
+#showhide {
+	float: right;
 }
 
 .video {
@@ -51,7 +66,7 @@ body {
 	top: 0;
 	right: 0;
 	color: #fff;
-	font-size: 0.8em;
+	font-size: 0.9em;
 	background-color: rgba(0,0,0,0.5);
 	padding: 2px;
 }
