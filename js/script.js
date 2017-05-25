@@ -16,11 +16,12 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	var lines = [];
 
 	if (typeof(Storage) !== "undefined") {
+		$("#apikey").val(localStorage.getItem("apikey"));
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
 			$("#video_urls").val(l.join('\n'));
+			refresh();
 		}
-		$("#apikey").val(localStorage.getItem("apikey"));
 	}
 
 	$("body").on("click", ".close", function() {
@@ -32,6 +33,10 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	});
 
 	$("#refresh_button").click(function() {
+		refresh();
+	});
+
+	function refresh() {
 		key = $("#apikey").val();
 		stepCount = 0;
 		ids = [];
@@ -64,7 +69,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			stepCount++;
 			$.get(url, handleChannel);
 		});
-	});
+	}
 
 	function handleChannel(data) {
 		stepCount--;
