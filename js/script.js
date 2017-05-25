@@ -24,7 +24,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		}
 	}
 
-	$("body").on("click", ".close", function() {
+	$("body").on("click", ".close_channel", function() {
 		$(this).closest(".channel").slideUp();
 	});
 
@@ -89,7 +89,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		videos += "<div class='video_list'>";
 		$.each(data.items, videoHTML);
 		videos += "</div>";
-		videos += "<div class='close'></div>";
+		videos += "<div class='close_channel'></div>";
 		videos += "</div>";
 		$("#videos").append( videos );
 
