@@ -9,6 +9,14 @@ body {
 .channel {
 	padding: 10px;
 	position: relative;
+	margin-top: 20px;
+}
+
+@media (max-width: 800px) {
+	.channel {
+		padding: unset;
+		padding-top: 5px;
+	}
 }
 
 .video_list {
@@ -35,13 +43,15 @@ body {
 .video {
 	position: relative;
 	border: 1px solid #bbb;
-	display: inline-block;
+	background: #eee;
 	padding: 0;
 	margin-right: 5px;
 	width: 200px;
 	min-width: 100px;
 	font-size: 0.9em;
 	box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+	display: flex;
+	flex-direction: column;
 }
 
 .video_title {
@@ -49,12 +59,12 @@ body {
 	border-bottom: 1px solid #ccc;
 	background: #3c3c3c;
 	color: #fff;
+	flex-grow: 2;
 }
 
 .video_footer {
 	padding: 3px;
 	text-align: right;
-	background: #eee;
 	font-size: 0.9em;
 }
 
@@ -101,7 +111,6 @@ body {
 }
 
 @media (max-width: 800px) {
-	/* some CSS here */
 	.close_channel {
 		left: 50%;
 		top: 0px;

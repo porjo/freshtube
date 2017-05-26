@@ -129,8 +129,8 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		var watch = watchURL + "?v=" + id;
 		div += "<div class='video_thumb'><a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a></div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
-		div += "<div class='video_footer'>" + moment(v.snippet.publishedAt).fromNow() + "</div>";
 		div += "<div class='video_duration'></div>";
+		div += "<div class='video_footer'>" + moment(v.snippet.publishedAt).fromNow() + "</div>";
 		div += "</div>";
 
 		videos += div;
