@@ -94,6 +94,12 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	function handlePlaylist(data) {
 		stepCount--;
 		if( data.items.length == 0 ) { return; }
+		// sort items by publish date
+		data.items.sort(function (a,b) {
+			return moment(a.snippet.publishedAt).isBefore(
+				 moment(b.snippet.publishedAt)
+			);
+		});
 		videos = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
 		videos += "<div class='channel_title'>" + channelTitle + "</div>";
