@@ -14,6 +14,8 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	var videos = "";
 	var key = "";
 	var lines = [];
+	var lastRefresh = null;
+	var highlightNew = false;
 
 	if (typeof(Storage) !== "undefined") {
 		$("#apikey").val(localStorage.getItem("apikey"));
@@ -22,6 +24,12 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			$("#video_urls").val(l.join('\n'));
 			refresh();
 		}
+		var lr = moment(localStorage.getItem("lastRefresh"));
+		if(lr) {
+			lastRefresh = moment(lr);
+		}
+		highlightNew = localStorage.getItem("highlightNew");
+		$("#highlight_new").prop('checked', highlightNew);
 	}
 
 	$("body").on("click", ".close_channel", function() {
@@ -46,6 +54,9 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		if (typeof(Storage) !== "undefined") {
 			localStorage.setItem("lines", JSON.stringify(lines));
 			localStorage.setItem("apikey", key);
+			localStorage.setItem("lastRefresh", moment().toISOString());
+			highlightNew =  $("#highlight_new").is(":checked") ? 1 : 0;
+			localStorage.setItem("highlightNew", highlightNew);
 		}
 
 		$.each(lines, function(k, line) {
@@ -131,6 +142,9 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		div += "<div class='video_duration'></div>";
 		div += "<div class='video_footer'>" + moment(v.snippet.publishedAt).fromNow() + "</div>";
+		if( lastRefresh && highlightNew && moment(lastRefresh).isBefore(v.snippet.publishedAt) ) {
+			div += "<div class='ribbon'><span>New</span></div>";
+		}
 		div += "</div>";
 
 		videos += div;
