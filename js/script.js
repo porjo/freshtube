@@ -24,10 +24,6 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			$("#video_urls").val(l.join('\n'));
 			refresh();
 		}
-		var lr = moment(localStorage.getItem("lastRefresh"));
-		if(lr) {
-			lastRefresh = moment(lr);
-		}
 		highlightNew = localStorage.getItem("highlightNew");
 		$("#highlight_new").prop('checked', highlightNew);
 	}
@@ -52,6 +48,10 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		$("#videos").html('');
 
 		if (typeof(Storage) !== "undefined") {
+			var lr = moment(localStorage.getItem("lastRefresh"));
+			if(lr) {
+				lastRefresh = moment(lr);
+			}
 			localStorage.setItem("lines", JSON.stringify(lines));
 			localStorage.setItem("apikey", key);
 			localStorage.setItem("lastRefresh", moment().toISOString());
