@@ -143,7 +143,7 @@ body {
   width: 100px;
   display: block;
   background: #79A70A;
-  background: linear-gradient(#F70505 0%, #8F0808 100%);
+  background: rgba(255,0,0,0.6);
   box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
   position: absolute;
   top: 19px; left: -21px;
