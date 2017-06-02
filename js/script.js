@@ -9,7 +9,6 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 
 (function() {
 
-	var stepCount = 0;
 	var ids = [];
 	var videos = "";
 	var key = "";
@@ -42,7 +41,6 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 
 	function refresh() {
 		key = $("#apikey").val();
-		stepCount = 0;
 		ids = [];
 		var lines = $("#video_urls").val().split(/\n/);
 		$("#videos").html('');
@@ -59,7 +57,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			localStorage.setItem("highlightNew", highlightNew);
 		}
 
-		$.each(lines, function(k, line) {
+		$.when.apply($, lines.map(function(line) {
 			if( line.trim() == "" ) {return; }
 			$("#search_input").slideUp();
 			var url = channelURL + "&key=" + key;
@@ -77,22 +75,20 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 					url += "&forUsername=" + id;
 				}
 			}
-			stepCount++;
-			$.get(url, handleChannel);
+			return $.get(url).then(handleChannel).then(handlePlaylist);
+		})).done(function() {
+			getDurations();
 		});
 	}
 
 	function handleChannel(data) {
-		stepCount--;
 		if( data.items.length == 0 ) { return; }
 		var playlistID = data.items[0].contentDetails.relatedPlaylists.uploads;
 		url = playlistURL + "&key=" + key + "&playlistId=" + playlistID;
-		stepCount++;
-		$.get(url, handlePlaylist);
+		return $.get(url);
 	}
 
 	function handlePlaylist(data) {
-		stepCount--;
 		if( data.items.length == 0 ) { return; }
 		// sort items by publish date
 		data.items.sort(function (a,b) {
@@ -109,10 +105,6 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		videos += "<div class='close_channel'></div>";
 		videos += "</div>";
 		$("#videos").append( videos );
-
-		if(stepCount == 0) {
-			getDurations();
-		}
 	}
 
 	function getDurations() {
