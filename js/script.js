@@ -14,17 +14,17 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	var key = "";
 	var lines = [];
 	var lastRefresh = null;
-	var highlightNew = false;
+	var highlightNew = true;
 
 	if (typeof(Storage) !== "undefined") {
 		$("#apikey").val(localStorage.getItem("apikey"));
+		highlightNew = localStorage.getItem("highlightNew") === 'false' ? false : true;
+		$("#highlight_new").prop('checked', highlightNew);
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
 			$("#video_urls").val(l.join('\n'));
 			refresh();
 		}
-		highlightNew = localStorage.getItem("highlightNew");
-		$("#highlight_new").prop('checked', highlightNew);
 	}
 
 	$("body").on("click", ".close_channel", function() {
@@ -53,7 +53,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			localStorage.setItem("lines", JSON.stringify(lines));
 			localStorage.setItem("apikey", key);
 			localStorage.setItem("lastRefresh", moment().toISOString());
-			highlightNew =  $("#highlight_new").is(":checked") ? 1 : 0;
+			highlightNew = $("#highlight_new").is(":checked");
 			localStorage.setItem("highlightNew", highlightNew);
 		}
 
