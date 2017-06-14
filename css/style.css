@@ -7,6 +7,10 @@
 	margin-bottom: 50px;
 }
 
+#error-box {
+	display: none;
+}
+
 .channel {
 	padding: 10px;
 	position: relative;
