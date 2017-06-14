@@ -39,7 +39,20 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		refresh();
 	});
 
+	function errorBox(data) {
+		var errMsg = '';
+		if(typeof data == 'object' && 'responseJSON' in data ) {
+			$.each(data.responseJSON.error.errors, function(idx,val) {
+				errMsg += 'Error: ' + val.reason + ', ' + val.message;
+			});
+
+			$("#error-box").text(errMsg).show();
+		}
+		return Promise.reject(errMsg);
+	}
+
 	function refresh() {
+		$("#error-box").hide();
 		key = $("#apikey").val();
 		ids = [];
 		var lines = $("#video_urls").val().split(/\n/);
@@ -75,7 +88,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 					url += "&forUsername=" + id;
 				}
 			}
-			return $.get(url).then(handleChannel).then(handlePlaylist);
+			return $.get(url).then(handleChannel, errorBox).then(handlePlaylist, errorBox);
 		})).done(function() {
 			getDurations();
 		});
