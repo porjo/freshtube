@@ -1,9 +1,10 @@
-body {
-	font-family: Sans-Serif;
-}
 
 .quiet_text {
 	color: #777;
+}
+
+#search_input {
+	margin-bottom: 50px;
 }
 
 .channel {
