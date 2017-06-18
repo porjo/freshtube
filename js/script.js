@@ -1,6 +1,6 @@
-var channelURL = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails";
-var playlistURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet";
-var durationURL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails";
+var apiChannelURL = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails";
+var apiPlaylistURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet";
+var apiDurationURL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails";
 var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
@@ -73,12 +73,15 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		$.when.apply($, lines.map(function(line) {
 			if( line.trim() == "" ) {return; }
 			$("#search_input").slideUp();
-			var url = channelURL + "&key=" + key;
+			var url = apiChannelURL + "&key=" + key;
 			var chanMatches = line.match(channelRe);
 			var userMatches = line.match(userRe);
+			var channelURL = 'https://www.youtube.com/';
 			if( chanMatches && chanMatches.length > 1 ) {
+				channelURL += 'channel/' + chanMatches[1];
 				url += "&id=" + chanMatches[1];
 			} else if( userMatches && userMatches.length > 1 ) {
+				channelURL += 'user/' + userMatches[1];
 				url += "&forUsername=" + userMatches[1];
 			} else {
 				id = line.trim();
@@ -88,7 +91,9 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 					url += "&forUsername=" + id;
 				}
 			}
-			return $.get(url).then(handleChannel, errorBox).then(handlePlaylist, errorBox);
+			return $.get(url).then(handleChannel, errorBox).then(function(data) {
+				handlePlaylist(channelURL, data);
+			}, errorBox);
 		})).done(function() {
 			getDurations();
 		});
@@ -97,11 +102,11 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	function handleChannel(data) {
 		if( data.items.length == 0 ) { return; }
 		var playlistID = data.items[0].contentDetails.relatedPlaylists.uploads;
-		url = playlistURL + "&key=" + key + "&playlistId=" + playlistID;
+		url = apiPlaylistURL + "&key=" + key + "&playlistId=" + playlistID;
 		return $.get(url);
 	}
 
-	function handlePlaylist(data) {
+	function handlePlaylist(apiChannelURL, data) {
 		if( data.items.length == 0 ) { return; }
 		// sort items by publish date
 		data.items.sort(function (a,b) {
@@ -111,7 +116,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		});
 		videos = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
-		videos += "<div class='channel_title'>" + channelTitle + "</div>";
+		videos += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a></div>";
 		videos += "<div class='video_list'>";
 		$.each(data.items, videoHTML);
 		videos += "</div>";
@@ -121,7 +126,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	}
 
 	function getDurations() {
-		url = durationURL + "&key=" + key + "&id=" + ids.join(",");
+		url = apiDurationURL + "&key=" + key + "&id=" + ids.join(",");
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				var duration = moment.duration(v.contentDetails.duration);
