@@ -90,38 +90,23 @@
 	padding: 2px;
 }
 
-/* Close symbol, credit to https://codepen.io/brissmyr/pen/egidw */
 .close_channel {
 	position: absolute;
-	left: -20px;
-	top: 16px;
-	width: 16px;
-	height: 16px;
+	left: -40px;
+	top: 0;
 	opacity: 0.5;
+	font-size: 3em;
 }
 
 .close_channel:hover {
 	opacity: 1;
 	cursor: pointer;
 }
-.close_channel:before, .close_channel:after {
-	position: absolute;
-	content: ' ';
-	height: 17px;
-	width: 2px;
-	background-color: #333;
-}
-.close_channel:before {
-	transform: rotate(45deg);
-}
-.close_channel:after {
-	transform: rotate(-45deg);
-}
 
 @media (max-width: 800px) {
 	.close_channel {
 		left: 50%;
-		top: 0px;
+		top: -25px;
 	}
 }
 

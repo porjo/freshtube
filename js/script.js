@@ -120,7 +120,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		videos += "<div class='video_list'>";
 		$.each(data.items, videoHTML);
 		videos += "</div>";
-		videos += "<div class='close_channel'></div>";
+		videos += "<div class='close_channel'>&times;</div>";
 		videos += "</div>";
 		$("#videos").append( videos );
 	}
