@@ -39,6 +39,11 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		refresh();
 	});
 
+	$("#videos").on("click", ".ribbon", function() {
+		var href = $(this).closest(".video").find(".video_thumb > a").attr("href");
+		location.href = href;
+	});
+
 	function errorBox(data) {
 		var errMsg = '';
 		if(typeof data == 'object' && 'responseJSON' in data ) {
