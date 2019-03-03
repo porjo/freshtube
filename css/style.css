@@ -103,6 +103,10 @@
 	cursor: pointer;
 }
 
+.grey-out {
+	filter: grayscale(100%) opacity(50%);
+}
+
 @media (max-width: 800px) {
 	.close_channel {
 		left: 50%;

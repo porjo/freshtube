@@ -1,6 +1,7 @@
 var apiChannelURL = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails";
 var apiPlaylistURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet";
 var apiDurationURL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails";
+var apiLiveBroadcastURL = "https://www.googleapis.com/youtube/v3/videos?part=snippet";
 var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
@@ -101,6 +102,7 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			}, errorBox);
 		})).done(function() {
 			getDurations();
+			getLiveBroadcasts();
 		});
 	}
 
@@ -143,6 +145,17 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 				}
 
 				$("#" + v.id + " .video_duration").text(durationStr);
+			});
+		});
+	}
+
+	function getLiveBroadcasts() {
+		url = apiLiveBroadcastURL + "&key=" + key + "&id=" + ids.join(",");
+		$.get(url, function(data) {
+			$.each(data.items, function(k,v) {
+				if( v.snippet.liveBroadcastContent === "upcoming" ) {
+					$("#" + v.id + " .video_thumb img").addClass('grey-out');
+				}
 			});
 		});
 	}
