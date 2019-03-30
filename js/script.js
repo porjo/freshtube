@@ -16,11 +16,19 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	var lines = [];
 	var lastRefresh = null;
 	var highlightNew = true;
+	var hideOldCheck = true;
+	var hideOldDays = 1;
 
 	if (typeof(Storage) !== "undefined") {
 		$("#apikey").val(localStorage.getItem("apikey"));
 		highlightNew = localStorage.getItem("highlightNew") === 'false' ? false : true;
 		$("#highlight_new").prop('checked', highlightNew);
+		hideOldCheck = localStorage.getItem("hideOldCheck") === 'true' ? true : false;
+		$("#hide_old_check").prop('checked', hideOldCheck);
+		hideOldDays = Number(localStorage.getItem("hideOldDays"));
+		if( hideOldDays > 0 ) {
+			$("#hide_old_days").val(hideOldDays);
+		}
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
 			$("#video_urls").val(l.join('\n'));
@@ -74,6 +82,10 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 			localStorage.setItem("lastRefresh", moment().toISOString());
 			highlightNew = $("#highlight_new").is(":checked");
 			localStorage.setItem("highlightNew", highlightNew);
+			hideOldCheck = $("#hide_old_check").is(":checked");
+			localStorage.setItem("hideOldCheck", hideOldCheck);
+			hideOldDays = $("#hide_old_days").val();
+			localStorage.setItem("hideOldDays", hideOldDays);
 		}
 
 		$.when.apply($, lines.map(function(line) {
@@ -121,15 +133,22 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 				 moment(b.snippet.publishedAt)
 			);
 		});
-		videos = "<div class='channel'>";
+		videosOuter = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
-		videos += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a></div>";
-		videos += "<div class='video_list'>";
+		videosOuter += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a></div>";
+		videosOuter += "<div class='video_list'>";
+		videos = '';
 		$.each(data.items, videoHTML);
-		videos += "</div>";
-		videos += "<div class='close_channel'>&times;</div>";
-		videos += "</div>";
-		$("#videos").append( videos );
+		if( videos !== '' ) {
+			videosOuter += videos;
+		} else {
+			videosOuter += "<i>no videos found</i>";
+		}
+		videosOuter += "</div>";
+		videosOuter += "<div class='close_channel'>&times;</div>";
+		videosOuter += "</div>";
+
+		$("#videos").append( videosOuter );
 	}
 
 	function getDurations() {
@@ -161,6 +180,9 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 	}
 
 	function videoHTML(k,v) {
+		if( hideOldCheck &&  moment().subtract(hideOldDays, "days").isAfter(v.snippet.publishedAt) ) {
+			return;
+		}
 		var fullTitle = v.snippet.title;
 		var title = v.snippet.title;
 		if( title.length > 50 ) {
