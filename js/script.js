@@ -6,6 +6,7 @@ var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
+var rssRe = /(\.rss|rss\.)/;
 
 
 (function() {
@@ -91,27 +92,33 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		$.when.apply($, lines.map(function(line) {
 			if( line.trim() == "" ) {return; }
 			$("#search_input").slideUp();
-			var url = apiChannelURL + "&key=" + key;
-			var chanMatches = line.match(channelRe);
-			var userMatches = line.match(userRe);
-			var channelURL = 'https://www.youtube.com/';
-			if( chanMatches && chanMatches.length > 1 ) {
-				channelURL += 'channel/' + chanMatches[1];
-				url += "&id=" + chanMatches[1];
-			} else if( userMatches && userMatches.length > 1 ) {
-				channelURL += 'user/' + userMatches[1];
-				url += "&forUsername=" + userMatches[1];
+			if( line.match(rssRe) !== null ) {
+				return $.get(line).then(function(data) {
+					handleRSS(data);
+				}, errorBox);
 			} else {
-				id = line.trim();
-				if( id.length == 24 ) {
-					url += "&id=" + id;
+				var url = apiChannelURL + "&key=" + key;
+				var chanMatches = line.match(channelRe);
+				var userMatches = line.match(userRe);
+				var channelURL = 'https://www.youtube.com/';
+				if( chanMatches && chanMatches.length > 1 ) {
+					channelURL += 'channel/' + chanMatches[1];
+					url += "&id=" + chanMatches[1];
+				} else if( userMatches && userMatches.length > 1 ) {
+					channelURL += 'user/' + userMatches[1];
+					url += "&forUsername=" + userMatches[1];
 				} else {
-					url += "&forUsername=" + id;
+					id = line.trim();
+					if( id.length == 24 ) {
+						url += "&id=" + id;
+					} else {
+						url += "&forUsername=" + id;
+					}
 				}
+				return $.get(url).then(handleChannel, errorBox).then(function(data) {
+					handlePlaylist(channelURL, data);
+				}, errorBox);
 			}
-			return $.get(url).then(handleChannel, errorBox).then(function(data) {
-				handlePlaylist(channelURL, data);
-			}, errorBox);
 		})).done(function() {
 			getDurations();
 			getLiveBroadcasts();
@@ -139,6 +146,53 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		videosOuter += "<div class='video_list'>";
 		videos = '';
 		$.each(data.items, videoHTML);
+		if( videos !== '' ) {
+			videosOuter += videos;
+		} else {
+			videosOuter += "<i>no videos found</i>";
+		}
+		videosOuter += "</div>";
+		videosOuter += "<div class='close_channel'>&times;</div>";
+		videosOuter += "</div>";
+
+		$("#videos").append( videosOuter );
+	}
+
+	function handleRSS(data) {
+		if( data.length == 0 ) { return; }
+
+		var $channel = $(data).find("channel");
+
+		var channelTitle = $channel.find("title:first").text();
+		var channelURL =  $channel.find("link:first").text();
+		var imageURL =  $channel.find("image:first url").text();
+
+		videosOuter = "<div class='channel'>";
+		videosOuter += "<div class='channel_title'><a href='" + channelURL + "' target='_blank'>" + channelTitle + "</a></div>";
+		videosOuter += "<div class='video_list'>";
+		videos = '';
+
+		var rssVids = [];
+		$channel.find("item").slice(0,10).each(function () {
+			$el = $(this);
+			rssVids.push({
+				"snippet": {
+					"title": $el.find("title").text(),
+					"resourceId": {
+						"videoId": $el.find("guid").text()
+					},
+					"thumbnails": {
+						"medium": {"url": imageURL}
+					},
+					"publishedAt": $el.find("pubDate").text(),
+					"watchURL": $el.find("enclosure").attr('url')
+				}
+			});
+		});
+
+		//console.log(rssVids);
+
+		$.each(rssVids, videoHTML);
 		if( videos !== '' ) {
 			videosOuter += videos;
 		} else {
@@ -193,7 +247,12 @@ var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 		ids.push(id);
 
 		var div = "<div class='video' id='" + id + "'>"
-		var watch = watchURL + "?v=" + id;
+		var watch = '';
+		if( 'watchURL' in v.snippet ) {
+			watch = v.snippet.watchURL;
+		} else {
+			watch = watchURL + "?v=" + id;
+		}
 		div += "<div class='video_thumb'><a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a></div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		div += "<div class='video_duration'></div>";
