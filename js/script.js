@@ -6,7 +6,7 @@ var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
-var rssRe = /(\.rss|rss\.)/;
+var rssRe = /(\.rss|rss\.|\.xml)/;
 
 
 (function() {
