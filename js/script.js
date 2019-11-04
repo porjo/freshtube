@@ -20,6 +20,10 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 	var hideOldCheck = true;
 	var hideOldDays = 1;
 
+	$.ajaxSetup({
+		cache: false
+	});
+
 	if (typeof(Storage) !== "undefined") {
 		$("#apikey").val(localStorage.getItem("apikey"));
 		highlightNew = localStorage.getItem("highlightNew") === 'false' ? false : true;
