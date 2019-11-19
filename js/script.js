@@ -189,7 +189,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 						"medium": {"url": imageURL}
 					},
 					"publishedAt": $el.find("pubDate").text(),
-					"watchURL": $el.find("enclosure").attr('url')
+					"watchURL": $el.find("enclosure").attr('url'),
+					"duration": $el.find("itunes\\:duration").text()
 				}
 			});
 		});
@@ -259,7 +260,11 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		}
 		div += "<div class='video_thumb'><a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a></div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
-		div += "<div class='video_duration'></div>";
+		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
+			div += "<div class='video_duration'>" + v.snippet.duration + "</div>";
+		} else {
+			div += "<div class='video_duration'></div>";
+		}
 		div += "<div class='video_footer'>" + moment(v.snippet.publishedAt).fromNow() + "</div>";
 		if( lastRefresh && highlightNew && moment(lastRefresh).isBefore(v.snippet.publishedAt) ) {
 			div += "<div class='ribbon'><span>New</span></div>";
