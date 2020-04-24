@@ -76,6 +76,10 @@
 	font-size: 0.9em;
 }
 
+.video_thumb {
+	position: relative;
+}
+
 .video_thumb img {
 	width: 100%;
 }
@@ -88,6 +92,21 @@
 	font-size: 0.9em;
 	background-color: rgba(0,0,0,0.5);
 	padding: 2px;
+}
+
+.video_sched {
+	display: none;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	text-align: center;
+	color: #fff;
+	font-size: 0.9em;
+	font-weight: bold;
+	background-color: rgba(0,67,225,0.75);
+	padding: 2px;
+	z-index: 1;
 }
 
 .close_channel {

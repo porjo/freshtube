@@ -1,7 +1,7 @@
 var apiChannelURL = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails";
 var apiPlaylistURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet";
 var apiDurationURL = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails";
-var apiLiveBroadcastURL = "https://www.googleapis.com/youtube/v3/videos?part=snippet";
+var apiLiveBroadcastURL = "https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails";
 var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
@@ -232,6 +232,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				if( v.snippet.liveBroadcastContent === "upcoming" ) {
+					$("#" + v.id + " .video_sched").text(moment(v.liveStreamingDetails.scheduledStartTime).fromNow()).show();
 					$("#" + v.id + " .video_thumb img").addClass('grey-out');
 				}
 			});
@@ -258,7 +259,10 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		} else {
 			watch = watchURL + "?v=" + id;
 		}
-		div += "<div class='video_thumb'><a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a></div>";
+		div += "<div class='video_thumb'>";
+		div += "<div class='video_sched'></div>";
+		div += "<a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a>";
+		div += "</div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
 			div += "<div class='video_duration'>" + v.snippet.duration + "</div>";
