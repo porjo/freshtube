@@ -19,6 +19,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 	var highlightNew = true;
 	var hideOldCheck = true;
 	var hideOldDays = 1;
+	var hideTimeCheck = true;
+	var hideTimeMins = 20;
 
 	$.ajaxSetup({
 		cache: false
@@ -33,6 +35,11 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		hideOldDays = Number(localStorage.getItem("hideOldDays"));
 		if( hideOldDays > 0 ) {
 			$("#hide_old_days").val(hideOldDays);
+		}
+		$("#hide_time_check").prop('checked', hideTimeCheck);
+		hideTimeMins = Number(localStorage.getItem("hideTimeMins"));
+		if( hideTimeMins > 0 ) {
+			$("#hide_time_mins").val(hideTimeMins);
 		}
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
@@ -91,6 +98,10 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			localStorage.setItem("hideOldCheck", hideOldCheck);
 			hideOldDays = $("#hide_old_days").val();
 			localStorage.setItem("hideOldDays", hideOldDays);
+			hideTimeCheck = $("#hide_time_check").is(":checked");
+			localStorage.setItem("hideTimeCheck", hideTimeCheck);
+			hideTimeMins = $("#hide_time_mins").val();
+			localStorage.setItem("hideTimeMins", hideTimeMins);
 		}
 
 		$.when.apply($, lines.map(function(line) {
@@ -215,13 +226,16 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				var duration = moment.duration(v.contentDetails.duration);
+				if( hideTimeCheck &&  duration.minutes() < hideTimeMins ) {
+					$("#" + v.id).remove();
+					return;
+				}
 				var sec = ('00'+ duration.seconds().toString()).substring(duration.seconds().toString().length);
 				var min = ('00'+ duration.minutes().toString()).substring(duration.minutes().toString().length);
 				var durationStr = min + ":" + sec;
 				if( duration.hours() > 0 ) {
 					durationStr = duration.hours() + ":" + durationStr;
 				}
-
 				$("#" + v.id + " .video_duration").text(durationStr);
 			});
 		});
@@ -242,6 +256,13 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 	function videoHTML(k,v) {
 		if( hideOldCheck &&  moment().subtract(hideOldDays, "days").isAfter(v.snippet.publishedAt) ) {
 			return;
+		}
+
+		// RSS durations here
+		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
+			if( hideTimeCheck &&  moment.duration(v.snippet.duration, "minutes").minutes() < hideTimeMins ) {
+				return;
+			}
 		}
 		var fullTitle = v.snippet.title;
 		var title = v.snippet.title;
@@ -265,6 +286,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		div += "</div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
+			// RSS durations here
 			div += "<div class='video_duration'>" + v.snippet.duration + "</div>";
 		} else {
 			div += "<div class='video_duration'></div>";
