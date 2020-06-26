@@ -227,7 +227,9 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			$.each(data.items, function(k,v) {
 				var duration = moment.duration(v.contentDetails.duration);
 				if( hideTimeCheck &&  duration.minutes() < hideTimeMins ) {
-					$("#" + v.id).remove();
+					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
+						$(this).remove();
+					});
 					return;
 				}
 				var sec = ('00'+ duration.seconds().toString()).substring(duration.seconds().toString().length);
