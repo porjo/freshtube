@@ -226,7 +226,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				var duration = moment.duration(v.contentDetails.duration);
-				if( hideTimeCheck &&  duration.minutes() < hideTimeMins ) {
+				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
 						$(this).remove();
 					});
@@ -262,7 +262,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 
 		// RSS durations here
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
-			if( hideTimeCheck &&  moment.duration(v.snippet.duration, "minutes").minutes() < hideTimeMins ) {
+			var duration = moment.duration(v.snippet.duration);
+			if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 				return;
 			}
 		}
