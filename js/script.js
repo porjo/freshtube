@@ -226,12 +226,6 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				var duration = moment.duration(v.contentDetails.duration);
-				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
-					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
-						$(this).remove();
-					});
-					return;
-				}
 				var sec = ('00'+ duration.seconds().toString()).substring(duration.seconds().toString().length);
 				var min = ('00'+ duration.minutes().toString()).substring(duration.minutes().toString().length);
 				var durationStr = min + ":" + sec;
@@ -239,6 +233,12 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 					durationStr = duration.hours() + ":" + durationStr;
 				}
 				$("#" + v.id + " .video_duration").text(durationStr);
+				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
+					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
+						$(this).remove();
+					});
+					return;
+				}
 			});
 		});
 	}
