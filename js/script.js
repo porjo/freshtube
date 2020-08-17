@@ -241,7 +241,6 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 					var $tinyVid = $vid.clone().appendTo($tiny);
 					$tinyVid.find(".video_title").remove();
 					$tinyVid.find(".video_footer").remove();
-					$tinyVid.find(".video_duration").remove();
 					$tinyVid.fadeIn();
 					return;
 				}
