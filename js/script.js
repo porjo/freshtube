@@ -166,6 +166,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		} else {
 			videosOuter += "<i>no videos found</i>";
 		}
+		videosOuter += "<div class='tiny'></div>";
 		videosOuter += "</div>";
 		videosOuter += "<div class='close_channel'>&times;</div>";
 		videosOuter += "</div>";
@@ -234,9 +235,14 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				}
 				$("#" + v.id + " .video_duration").text(durationStr);
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
-					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
-						$(this).remove();
-					});
+					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000);
+					var $vid = $("#" + v.id);
+					var $tiny = $vid.closest(".video_list").find(".tiny");
+					var $tinyVid = $vid.clone().appendTo($tiny);
+					$tinyVid.find(".video_title").remove();
+					$tinyVid.find(".video_footer").remove();
+					$tinyVid.find(".video_duration").remove();
+					$tinyVid.fadeIn();
 					return;
 				}
 			});

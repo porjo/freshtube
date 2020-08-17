@@ -29,6 +29,15 @@
 	align-items: stretch;
 }
 
+.tiny {
+	max-width: 80px;
+}
+
+.tiny .video {
+	min-width: unset;
+	width: auto;
+}
+
 .channel_title {
 	font-size: 1.2em;
 	font-weight: bold;
