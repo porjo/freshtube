@@ -29,13 +29,17 @@
 	align-items: stretch;
 }
 
-.tiny {
-	max-width: 80px;
+.mini {
+	display: flex;
+	flex-direction: column;
+	max-height: 200px;
+	flex-wrap: wrap;
 }
 
-.tiny .video {
+.mini .video {
 	min-width: unset;
 	width: auto;
+	max-width: 80px;
 }
 
 .channel_title {

@@ -166,7 +166,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		} else {
 			videosOuter += "<i>no videos found</i>";
 		}
-		videosOuter += "<div class='tiny'></div>";
+		videosOuter += "<div class='mini'></div>";
 		videosOuter += "</div>";
 		videosOuter += "<div class='close_channel'>&times;</div>";
 		videosOuter += "</div>";
@@ -237,11 +237,11 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000);
 					var $vid = $("#" + v.id);
-					var $tiny = $vid.closest(".video_list").find(".tiny");
-					var $tinyVid = $vid.clone().appendTo($tiny);
-					$tinyVid.find(".video_title").remove();
-					$tinyVid.find(".video_footer").remove();
-					$tinyVid.fadeIn();
+					var $mini = $vid.closest(".video_list").find(".mini");
+					var $miniVid = $vid.clone().appendTo($mini);
+					$miniVid.find(".video_title").remove();
+					$miniVid.find(".video_footer").remove();
+					$miniVid.fadeIn();
 					return;
 				}
 			});
