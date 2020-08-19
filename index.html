@@ -31,7 +31,30 @@
 						<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
 					</div>
 					<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
-					<input type="checkbox" id='hide_old_check'> hide videos older than <input id="hide_old_days" type="number" size=5 value="7" min=1 /> days<br>
+
+					<div class="form-group">
+						<span>Videos older than <input id="hide_old_days" type="number" size=5 value="7" min=1 /> days</span>
+
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="hide_old_Radios" id="hide_old_Radios1" value="show" checked>
+							<label class="form-check-label" for="hide_old_Radios1">
+								Show
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="hide_old_Radios" id="hide_old_Radios2" value="hide">
+							<label class="form-check-label" for="hide_old_Radios2">
+								Hide
+							</label>
+						</div>
+						<div class="form-check disabled">
+							<input class="form-check-input" type="radio" name="hide_old_Radios" id="hide_old_Radios3" value="mini" disabled>
+							<label class="form-check-label" for="hide_old_Radios3">
+								Display as 'mini' video
+							</label>
+						</div>
+					</div>
+
 					<input type="checkbox" id='hide_time_check'> hide videos shorter than <input id="hide_time_mins" type="number" size=5 value="20" min=1 /> minutes
 				</div>
 				<div id="refresh_bar">

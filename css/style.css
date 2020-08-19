@@ -30,16 +30,42 @@
 }
 
 .mini {
+	display: none;
+}
+
+.mini_title {
+	text-align: center;
+	color: #fff;
+	background-color: #1b7b00;
+}
+
+.mini_videos {
 	display: flex;
-	flex-direction: column;
 	max-height: 200px;
+	max-width: 170px;
 	flex-wrap: wrap;
 }
 
-.mini .video {
+.mini_videos .video {
 	min-width: unset;
 	width: auto;
 	max-width: 80px;
+	margin: 0 2px;
+}
+
+.mini_videos .video_footer {
+	font-size: 0.5em;
+	padding: 1px;
+	font-weight: bold;
+}
+
+.mini_videos .video_title {
+	font-size: 0.5em;
+	padding: 1px;
+}
+
+.mini_videos .video_duration {
+	font-size: 0.7em;
 }
 
 .channel_title {

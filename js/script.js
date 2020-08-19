@@ -166,7 +166,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		} else {
 			videosOuter += "<i>no videos found</i>";
 		}
-		videosOuter += "<div class='mini'></div>";
+		videosOuter += "<div class='mini'><div class='mini_title'>Mini</div><div class='mini_videos'></div></div>";
 		videosOuter += "</div>";
 		videosOuter += "<div class='close_channel'>&times;</div>";
 		videosOuter += "</div>";
@@ -237,11 +237,9 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000);
 					var $vid = $("#" + v.id);
-					var $mini = $vid.closest(".video_list").find(".mini");
-					var $miniVid = $vid.clone().appendTo($mini);
-					$miniVid.find(".video_title").remove();
-					$miniVid.find(".video_footer").remove();
-					$miniVid.fadeIn();
+					var $miniVids = $vid.closest(".video_list").find(".mini_videos");
+					$vid.clone().appendTo($miniVids);
+					$miniVids.closest('.mini').fadeIn();
 					return;
 				}
 			});
@@ -300,9 +298,9 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			div += "<div class='video_duration'></div>";
 		}
 		div += "<div class='video_footer'>" + moment(v.snippet.publishedAt).fromNow() + "</div>";
-		if( lastRefresh && highlightNew && moment(lastRefresh).isBefore(v.snippet.publishedAt) ) {
+		//if( lastRefresh && highlightNew && moment(lastRefresh).isBefore(v.snippet.publishedAt) ) {
 			div += "<div class='ribbon'><span>New</span></div>";
-		}
+		//}
 		div += "</div>";
 
 		videos += div;
