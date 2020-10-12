@@ -21,6 +21,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 	var hideOldDays = 1;
 	var hideTimeCheck = true;
 	var hideTimeMins = 20;
+	var videoClickTarget = null;
 
 	$.ajaxSetup({
 		cache: false
@@ -46,6 +47,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			$("#video_urls").val(l.join('\n'));
 			refresh();
 		}
+		videoClickTarget = localStorage.getItem("videoClickTarget");
+		$("#vc_target").val(videoClickTarget);
 	}
 
 	$("body").on("click", ".close_channel", function() {
@@ -102,6 +105,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			localStorage.setItem("hideTimeCheck", hideTimeCheck);
 			hideTimeMins = $("#hide_time_mins").val();
 			localStorage.setItem("hideTimeMins", hideTimeMins);
+			videoClickTarget = $("#vc_target").val();
+			localStorage.setItem("videoClickTarget", videoClickTarget);
 		}
 
 		$.when.apply($, lines.map(function(line) {
@@ -283,9 +288,10 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		} else {
 			watch = watchURL + "?v=" + id;
 		}
+		var clickURL = getClickURL(watch)
 		div += "<div class='video_thumb'>";
 		div += "<div class='video_sched'></div>";
-		div += "<a href='" + watch + "'><img src='" + v.snippet.thumbnails.medium.url + "'></a>";
+		div += "<a href='" + clickURL + "' target='_blank'><img src='" + v.snippet.thumbnails.medium.url + "'></a>";
 		div += "</div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
@@ -303,4 +309,14 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 
 		videos += div;
 	}
+
+	function getClickURL(url) {
+
+		if (!videoClickTarget) {
+			return url;
+		}
+
+		return videoClickTarget.replace("%v", encodeURIComponent(url));
+	}
+
 }());
