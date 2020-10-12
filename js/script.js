@@ -262,7 +262,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 
 		// RSS durations here
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
-			var duration = moment.duration(v.snippet.duration);
+			let duration = moment.duration(v.snippet.duration, 'seconds');
 			if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 				return;
 			}
@@ -290,7 +290,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
 			// RSS durations here
-			div += "<div class='video_duration'>" + v.snippet.duration + "</div>";
+			let duration = moment.duration(v.snippet.duration, 'seconds');
+			div += "<div class='video_duration'>" + duration.hours() + ":" + duration.minutes() + ":" + duration.seconds() + "</div>";
 		} else {
 			div += "<div class='video_duration'></div>";
 		}
