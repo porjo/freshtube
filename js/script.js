@@ -42,13 +42,14 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		if( hideTimeMins > 0 ) {
 			$("#hide_time_mins").val(hideTimeMins);
 		}
+		videoClickTarget = localStorage.getItem("videoClickTarget");
+		$("#vc_target").val(videoClickTarget);
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
 			$("#video_urls").val(l.join('\n'));
 			refresh();
 		}
-		videoClickTarget = localStorage.getItem("videoClickTarget");
-		$("#vc_target").val(videoClickTarget);
+		// Don't put anything here - refresh() should happen last
 	}
 
 	$("body").on("click", ".close_channel", function() {
