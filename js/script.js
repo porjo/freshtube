@@ -154,6 +154,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 	}
 
 	function handlePlaylist(apiChannelURL, data) {
+
 		if( data.items.length == 0 ) { return; }
 		// sort items by publish date
 		data.items.sort(function (a,b) {
@@ -238,6 +239,10 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				if( duration.hours() > 0 ) {
 					durationStr = duration.hours() + ":" + durationStr;
 				}
+				// don't output duration if value already exists e.g. if live broadcast
+				if( $("#" + v.id + " .video_duration").text() !== "" ) {
+					return;
+				}
 				$("#" + v.id + " .video_duration").text(durationStr);
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
@@ -256,6 +261,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				if( v.snippet.liveBroadcastContent === "upcoming" ) {
 					$("#" + v.id + " .video_sched").text(moment(v.liveStreamingDetails.scheduledStartTime).fromNow()).show();
 					$("#" + v.id + " .video_thumb img").addClass('grey-out');
+				} else if( v.snippet.liveBroadcastContent === "live" ) {
+					$("#" + v.id + " .video_duration").html("<div class='live'><span class='glyphicon glyphicon-record'></span>&nbsp;Live</div>");
 				}
 			});
 		});
