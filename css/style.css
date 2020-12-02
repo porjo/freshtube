@@ -130,6 +130,7 @@
 	font-weight: bold;
 	color: red;
 	text-shadow: 0px 0px 2px black;
+	font-size: 1.2em;
 }
 
 @media (max-width: 800px) {
