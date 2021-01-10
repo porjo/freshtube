@@ -187,7 +187,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 
 		var channelTitle = $channel.find("title:first").text();
 		var channelURL =  $channel.find("link:first").text();
-		var imageURL =  $channel.find("image:first url").text();
+		var channelImageURL =  $channel.find("image:first url").text();
 
 		videosOuter = "<div class='channel'>";
 		videosOuter += "<div class='channel_title'><a href='" + channelURL + "' target='_blank'>" + channelTitle + "</a></div>";
@@ -197,8 +197,9 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		var rssVids = [];
 		$channel.find("item").slice(0,10).each(function () {
 			$el = $(this);
-			if( imageURL == '' ) {
-				imageURL = $el.find("itunes\\:image").attr('href');
+			itemImageURL = $el.find("itunes\\:image").attr('href');
+			if( itemImageURL == '' ) {
+				itemImageURL = channelImageURL;
 			}
 			rssVids.push({
 				"snippet": {
@@ -207,7 +208,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 						"videoId": $el.find("guid").text()
 					},
 					"thumbnails": {
-						"medium": {"url": imageURL}
+						"medium": {"url": itemImageURL}
 					},
 					"publishedAt": $el.find("pubDate").text(),
 					"watchURL": $el.find("enclosure").attr('url'),
