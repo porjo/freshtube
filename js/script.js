@@ -197,6 +197,9 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		var rssVids = [];
 		$channel.find("item").slice(0,10).each(function () {
 			$el = $(this);
+			if( imageURL == '' ) {
+				imageURL = $el.find("itunes\\:image").attr('href');
+			}
 			rssVids.push({
 				"snippet": {
 					"title": $el.find("title").text(),
