@@ -6,7 +6,7 @@ var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
-var rssRe = /(\.rss|rss\.|\.xml)/;
+var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 
 
 (function() {
@@ -250,7 +250,7 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 				$("#" + v.id + " .video_duration").text(durationStr);
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
-						$(this).remove();
+						$(this).hide();
 					});
 					return;
 				}
@@ -277,9 +277,18 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 			return;
 		}
 
+		let duration;
 		// RSS durations here
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
-			let duration = moment.duration(v.snippet.duration, 'seconds');
+			if(v.snippet.duration.indexOf(':') > -1) {
+				if(v.snippet.duration.match(/[0-9]{1,2}:[0-9]{1,2}/)) {
+					duration = moment.duration("00:" + v.snippet.duration);
+				} else {
+					duration = moment.duration(v.snippet.duration);
+				}
+			} else {
+				duration = moment.duration(v.snippet.duration, 'seconds');
+			}
 			if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
 				return;
 			}
@@ -306,10 +315,8 @@ var rssRe = /(\.rss|rss\.|\.xml)/;
 		div += "<a href='" + clickURL + "' target='_blank'><img src='" + v.snippet.thumbnails.medium.url + "'></a>";
 		div += "</div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
-		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
-			// RSS durations here
-			let duration = moment.duration(v.snippet.duration, 'seconds');
-			div += "<div class='video_duration'>" + duration.hours() + ":" + duration.minutes() + ":" + duration.seconds() + "</div>";
+		if( duration ) {
+			div += "<div class='video_duration'>" + (duration.hours() > 0 ? duration.hours() + ":" : "") + duration.minutes() + ":" + duration.seconds() + "</div>";
 		} else {
 			div += "<div class='video_duration'></div>";
 		}
