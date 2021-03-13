@@ -281,8 +281,10 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		// RSS durations here
 		if( 'duration' in v.snippet && v.snippet.duration !== "" ) {
 			if(v.snippet.duration.indexOf(':') > -1) {
-				if(v.snippet.duration.match(/[0-9]{1,2}:[0-9]{1,2}/)) {
+				if(v.snippet.duration.match(/^[0-9]{1,2}:[0-9]{1,2}$/)) {
 					duration = moment.duration("00:" + v.snippet.duration);
+				} else if(v.snippet.duration.match(/^[0-9]:[0-9]{1,2}:[0-9]{1,2}$/)) {
+					duration = moment.duration("0" + v.snippet.duration);
 				} else {
 					duration = moment.duration(v.snippet.duration);
 				}
