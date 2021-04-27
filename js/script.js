@@ -318,7 +318,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		div += "</div>";
 		div += "<div class='video_title' title='" + fullTitle + "'>" + title + "</div>";
 		if( duration ) {
-			div += "<div class='video_duration'>" + (duration.hours() > 0 ? duration.hours() + ":" : "") + duration.minutes() + ":" + duration.seconds() + "</div>";
+			div += "<div class='video_duration'>" + (duration.hours() > 0 ? duration.hours() + ":" : "") + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2) + "</div>";
 		} else {
 			div += "<div class='video_duration'></div>";
 		}
@@ -338,6 +338,12 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		}
 
 		return videoClickTarget.replace("%v", encodeURIComponent(url));
+	}
+
+	function pad(n, width, z) {
+		z = z || '0';
+		n = n + '';
+		return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 	}
 
 }());
