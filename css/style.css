@@ -109,15 +109,14 @@
 	z-index: 1;
 }
 
-.close_channel {
-	position: absolute;
-	left: -40px;
-	top: 0;
+.close_channel, .show_hidden {
 	opacity: 0.5;
-	font-size: 3em;
+	font-size: 1.5em;
+	display: inline;
+	margin: 0 5px;
 }
 
-.close_channel:hover {
+.close_channel:hover, .show_hidden:hover {
 	opacity: 1;
 	cursor: pointer;
 }
@@ -134,9 +133,9 @@
 }
 
 @media (max-width: 800px) {
-	.close_channel {
-		left: 50%;
-		top: -25px;
+	.channel_title a {
+		display: inline-block;
+		max-width: 70%;
 	}
 }
 

@@ -19,6 +19,8 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	var highlightNew = true;
 	var hideOldCheck = true;
 	var hideOldDays = 1;
+	var hideFutureheck = true;
+	var hideFutureHours = 2;
 	var hideTimeCheck = true;
 	var hideTimeMins = 20;
 	var videoClickTarget = null;
@@ -37,6 +39,12 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		if( hideOldDays > 0 ) {
 			$("#hide_old_days").val(hideOldDays);
 		}
+		hideFutureCheck = localStorage.getItem("hideFutureCheck") === 'true' ? true : false;
+		$("#hide_future_check").prop('checked', hideFutureCheck);
+		hideFutureHours = Number(localStorage.getItem("hideFutureHours"));
+		if( hideFutureHours > 0 ) {
+			$("#hide_future_hours").val(hideFutureHours);
+		}
 		$("#hide_time_check").prop('checked', hideTimeCheck);
 		hideTimeMins = Number(localStorage.getItem("hideTimeMins"));
 		if( hideTimeMins > 0 ) {
@@ -54,6 +62,10 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 
 	$("body").on("click", ".close_channel", function() {
 		$(this).closest(".channel").slideUp();
+	});
+
+	$("body").on("click", ".show_hidden", function() {
+		$(this).closest(".channel").find(".would_hide").toggle();
 	});
 
 	$("#showhide").click(function() {
@@ -102,6 +114,10 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			localStorage.setItem("hideOldCheck", hideOldCheck);
 			hideOldDays = $("#hide_old_days").val();
 			localStorage.setItem("hideOldDays", hideOldDays);
+			hideFutureCheck = $("#hide_future_check").is(":checked");
+			localStorage.setItem("hideFutureCheck", hideFutureCheck);
+			hideFutureHours = $("#hide_future_hours").val();
+			localStorage.setItem("hideFutureHours", hideFutureHours);
 			hideTimeCheck = $("#hide_time_check").is(":checked");
 			localStorage.setItem("hideTimeCheck", hideTimeCheck);
 			hideTimeMins = $("#hide_time_mins").val();
@@ -143,6 +159,27 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		})).done(function() {
 			getDurations();
 			getLiveBroadcasts();
+			setTimeout(function() {
+				hiddenItemsStatus();
+			},1000);
+		});
+	}
+
+	function hiddenItemsStatus() {
+		$(".channel").each(function() {
+			var hiddenVids = false;
+			$(this).find(".video_list .video").each(function () {
+				if( $(this).css('display') === 'none' ) {
+					$(this).addClass('would_hide');
+					hiddenVids = true;
+				}
+			});
+
+			if(hiddenVids) {
+				var showHidden = $("<div class='show_hidden'><span class='glyphicon glyphicon-eye-open'></span></div>");
+				$(this).find(".channel_title").append(showHidden);
+			}
+		console.log('channel', $(this).find(".channel_title a").text(),showHidden);
 		});
 	}
 
@@ -164,7 +201,9 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		});
 		videosOuter = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
-		videosOuter += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a></div>";
+		videosOuter += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a>";
+		videosOuter += "<div class='close_channel'><span class='glyphicon glyphicon-remove'></span></div>";
+		videosOuter += "</div>";
 		videosOuter += "<div class='video_list'>";
 		videos = '';
 		$.each(data.items, videoHTML);
@@ -174,7 +213,6 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			videosOuter += "<i>no videos found</i>";
 		}
 		videosOuter += "</div>";
-		videosOuter += "<div class='close_channel'>&times;</div>";
 		videosOuter += "</div>";
 
 		$("#videos").append( videosOuter );
@@ -190,7 +228,9 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		var channelImageURL =  $channel.find("image:first url").text();
 
 		videosOuter = "<div class='channel'>";
-		videosOuter += "<div class='channel_title'><a href='" + channelURL + "' target='_blank'>" + channelTitle + "</a></div>";
+		videosOuter += "<div class='channel_title'><a href='" + channelURL + "' target='_blank'>" + channelTitle + "</a>";
+		videosOuter += "<div class='close_channel'><span class='glyphicon glyphicon-remove'></span></div>";
+		videosOuter += "</div>";
 		videosOuter += "<div class='video_list'>";
 		videos = '';
 
@@ -226,7 +266,6 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			videosOuter += "<i>no videos found</i>";
 		}
 		videosOuter += "</div>";
-		videosOuter += "<div class='close_channel'>&times;</div>";
 		videosOuter += "</div>";
 
 		$("#videos").append( videosOuter );
@@ -249,9 +288,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 				}
 				$("#" + v.id + " .video_duration").text(durationStr);
 				if( hideTimeCheck &&  duration.as('minutes') < hideTimeMins ) {
-					$("#" + v.id).fadeOut( (Math.random() * 1000) + 1000, function() {
-						$(this).hide();
-					});
+					$("#" + v.id).hide();
 					return;
 				}
 			});
@@ -263,6 +300,9 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		$.get(url, function(data) {
 			$.each(data.items, function(k,v) {
 				if( v.snippet.liveBroadcastContent === "upcoming" ) {
+					if( hideFutureCheck &&  moment().add(hideFutureHours, "hours").isBefore(moment(v.liveStreamingDetails.scheduledStartTime)) ) {
+						$("#" + v.id).hide();
+					}
 					$("#" + v.id + " .video_sched").text(moment(v.liveStreamingDetails.scheduledStartTime).fromNow()).show();
 					$("#" + v.id + " .video_thumb img").addClass('grey-out');
 				} else if( v.snippet.liveBroadcastContent === "live" ) {
