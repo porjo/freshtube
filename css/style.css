@@ -121,6 +121,10 @@
 	cursor: pointer;
 }
 
+.would_hide {
+	border: 2px dotted #0d05ff;
+}
+
 .grey-out {
 	filter: grayscale(100%) opacity(50%);
 }
