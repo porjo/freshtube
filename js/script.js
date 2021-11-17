@@ -152,6 +152,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 						url += "&forUsername=" + id;
 					}
 				}
+				console.log('get url', url);
 				return $.get(url).then(handleChannel, errorBox).then(function(data) {
 					handlePlaylist(channelURL, data);
 				}, errorBox);
@@ -183,7 +184,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	}
 
 	function handleChannel(data) {
-		if( !data.items || data.items.length == 0 ) {
+		if( typeof data === 'undefined' || data.items.length == 0 ) {
 			console.log('data missing items', data);
 			return;
 		}
