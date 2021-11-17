@@ -184,10 +184,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	}
 
 	function handleChannel(data) {
-		if( typeof data.items === 'undefined' || data.items.length == 0 ) {
-			console.log('data missing items', data);
-			return;
-		}
+		if( typeof data === 'undefined' || typeof data.items === 'undefined' ) {return;}
 		var playlistID = data.items[0].contentDetails.relatedPlaylists.uploads;
 		url = apiPlaylistURL + "&key=" + key + "&playlistId=" + playlistID;
 		return $.get(url);
@@ -195,6 +192,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 
 	function handlePlaylist(apiChannelURL, data) {
 
+		if( typeof data === 'undefined' || typeof data.items === 'undefined' ) {return;}
 		if( data.items.length == 0 ) { return; }
 		// sort items by publish date
 		data.items.sort(function (a,b) {
