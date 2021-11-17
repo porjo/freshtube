@@ -179,12 +179,14 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 				var showHidden = $("<div class='show_hidden'><span class='glyphicon glyphicon-eye-open'></span></div>");
 				$(this).find(".channel_title").append(showHidden);
 			}
-		console.log('channel', $(this).find(".channel_title a").text(),showHidden);
 		});
 	}
 
 	function handleChannel(data) {
-		if( data.items.length == 0 ) { return; }
+		if( !data.items || data.items.length == 0 ) {
+			console.log('data missing items', data);
+			return;
+		}
 		var playlistID = data.items[0].contentDetails.relatedPlaylists.uploads;
 		url = apiPlaylistURL + "&key=" + key + "&playlistId=" + playlistID;
 		return $.get(url);
