@@ -184,7 +184,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	}
 
 	function handleChannel(data) {
-		if( typeof data === 'undefined' || data.items.length == 0 ) {
+		if( typeof data.items === 'undefined' || data.items.length == 0 ) {
 			console.log('data missing items', data);
 			return;
 		}
