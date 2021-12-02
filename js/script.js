@@ -7,6 +7,7 @@ var watchURL = "https://www.youtube.com/watch";
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
 var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
+var nextcloudRe = /\/download\/?$/;
 
 
 (function() {
@@ -24,6 +25,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	var hideTimeCheck = true;
 	var hideTimeMins = 20;
 	var videoClickTarget = null;
+	var nextcloudURL = null;
 
 	$.ajaxSetup({
 		cache: false
@@ -52,9 +54,11 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		}
 		videoClickTarget = localStorage.getItem("videoClickTarget");
 		$("#vc_target").val(videoClickTarget);
-		var l = JSON.parse(localStorage.getItem("lines"));
-		if(l) {
-			$("#video_urls").val(l.join('\n'));
+		nextcloudURL = localStorage.getItem("nextcloudURL");
+		var linesStr = localStorage.getItem("lines");
+		if(linesStr || nextcloudURL) {
+			$("#nextcloud_url").val(nextcloudURL);
+			$("#video_urls").val(linesStr);
 			refresh();
 		}
 		// Don't put anything here - refresh() should happen last
@@ -82,22 +86,45 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	});
 
 	function errorBox(data) {
-		var errMsg = '';
+		var errMsg = 'Unknown error occured';
 		if(typeof data == 'object' && 'responseJSON' in data ) {
 			$.each(data.responseJSON.error.errors, function(idx,val) {
-				errMsg += 'Error: ' + val.reason + ', ' + val.message;
+				errMsg = val.reason + ', ' + val.message;
 			});
-
-			$("#error-box").text(errMsg).show();
+		} else if (typeof data == 'string') {
+			errMsg = data;
 		}
-		return Promise.reject(errMsg);
+		$("#error-box").text('Error: ' + errMsg).show();
+		//return Promise.reject(errMsg);
 	}
 
 	function refresh() {
 		$("#error-box").hide();
 		key = $("#apikey").val();
 		ids = [];
-		var lines = $("#video_urls").val().split(/\n/);
+		var lines = '';
+		nextcloudURL = $("#nextcloud_url").val();
+		if( nextcloudURL != '' ) {
+			// Append /download to get raw file
+			if( nextcloudURL.match(nextcloudRe) === null ) {
+				nextcloudURL += "/download";
+			}
+			$.when($.get(nextcloudURL)).then(function(data) {
+				lines = data.split(/\n/);
+				let lines2 = $("#video_urls").val().split(/\n/);
+				lines.push(...lines2);
+				let uLines = new Set(lines); // Set is unique
+				_refresh(Array.from(uLines));
+			},function(data) {
+				errorBox('failed to fetch Nextcloud share link - check CORS headers')
+			});
+		} else {
+			lines = $("#video_urls").val().split(/\n/);
+			_refresh(lines);
+		}
+	}
+
+	function _refresh(lines) {
 		$("#videos").html('');
 
 		if (typeof(Storage) !== "undefined") {
@@ -105,7 +132,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			if(lr) {
 				lastRefresh = moment(lr);
 			}
-			localStorage.setItem("lines", JSON.stringify(lines));
+			localStorage.setItem("lines", $("#video_urls").val());
 			localStorage.setItem("apikey", key);
 			localStorage.setItem("lastRefresh", moment().toISOString());
 			highlightNew = $("#highlight_new").is(":checked");
@@ -124,6 +151,8 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			localStorage.setItem("hideTimeMins", hideTimeMins);
 			videoClickTarget = $("#vc_target").val();
 			localStorage.setItem("videoClickTarget", videoClickTarget);
+			nextcloudURL = $("#nextcloud_url").val();
+			localStorage.setItem("nextcloudURL", nextcloudURL);
 		}
 
 		$.when.apply($, lines.map(function(line) {
@@ -152,7 +181,6 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 						url += "&forUsername=" + id;
 					}
 				}
-				console.log('get url', url);
 				return $.get(url).then(handleChannel, errorBox).then(function(data) {
 					handlePlaylist(channelURL, data);
 				}, errorBox);
