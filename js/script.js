@@ -24,6 +24,7 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 	var hideTimeCheck = true;
 	var hideTimeMins = 20;
 	var videoClickTarget = null;
+	var nextcloudURL = null;
 
 	$.ajaxSetup({
 		cache: false
@@ -52,6 +53,8 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		}
 		videoClickTarget = localStorage.getItem("videoClickTarget");
 		$("#vc_target").val(videoClickTarget);
+		nextcloudURL = localStorage.getItem("nextcloudURL");
+		$("#nextcloud_url").val(nextcloudURL);
 		var l = JSON.parse(localStorage.getItem("lines"));
 		if(l) {
 			$("#video_urls").val(l.join('\n'));
@@ -97,7 +100,23 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 		$("#error-box").hide();
 		key = $("#apikey").val();
 		ids = [];
-		var lines = $("#video_urls").val().split(/\n/);
+		var lines = '';
+		nextcloudURL = $("#nextcloud_url").val();
+		if( nextcloudURL != '' ) {
+			$.get(nextcloudURL).then(function(data) {
+				lines = data.split(/\n/);
+				let lines2 = $("#video_urls").val().split(/\n/);
+				lines.push(...lines2);
+				let uLines = new Set(lines); // Set is unique
+				_refresh(Array.from(uLines));
+			}, errorBox);
+		} else {
+			lines = $("#video_urls").val().split(/\n/);
+			_refresh(lines);
+		}
+	}
+
+	function _refresh(lines) {
 		$("#videos").html('');
 
 		if (typeof(Storage) !== "undefined") {
@@ -124,6 +143,8 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 			localStorage.setItem("hideTimeMins", hideTimeMins);
 			videoClickTarget = $("#vc_target").val();
 			localStorage.setItem("videoClickTarget", videoClickTarget);
+			nextcloudURL = $("#nextcloud_url").val();
+			localStorage.setItem("nextcloudURL", nextcloudURL);
 		}
 
 		$.when.apply($, lines.map(function(line) {
@@ -152,7 +173,6 @@ var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
 						url += "&forUsername=" + id;
 					}
 				}
-				console.log('get url', url);
 				return $.get(url).then(handleChannel, errorBox).then(function(data) {
 					handlePlaylist(channelURL, data);
 				}, errorBox);
