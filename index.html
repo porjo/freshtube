@@ -29,7 +29,7 @@
 				</div>
 				<div class="form-group">
 					<label for='video_urls'>Channels / Users</label>
-					<p class='quiet_text'>Paste either YouTube URLs containing a username or channel ID (one per line), or just the username or channel ID on its own.</p>
+					<p class='quiet_text'>Paste YouTube URLs containing a username or channel ID (one per line), or URL for RSS feed containing audio media.</p>
 					<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
 					<div class="form-group">
 						<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
@@ -37,9 +37,14 @@
 					</div>
 				</div>
 				<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
-				<input type="checkbox" id='hide_old_check'> hide videos older than <input id="hide_old_days" type="number" size=5 value="7" min=1 /> days<br>
-				<input type="checkbox" id='hide_future_check'> hide videos screening greater than <input id="hide_future_hours" type="number" size=5 value="2" min=1 /> hours in the future<br>
-				<input type="checkbox" id='hide_time_check'> hide videos shorter than <input id="hide_time_mins" type="number" size=5 value="20" min=1 /> minutes
+				<div class="form-group">
+					<label for="hide_group">Hide Videos</label>
+					<div id="hide_group" class="input-group">
+						<input type="checkbox" id='hide_old_check'> older than <input id="hide_old_days" type="number" size=2 value="7" min=1 /> days<br>
+						<input type="checkbox" id='hide_future_check'> screening &gt; <input id="hide_future_hours" type="number" size=2 value="2" min=1 /> hours in the future<br>
+						<input type="checkbox" id='hide_time_check'> &lt; <input id="hide_time_mins" type="number" size=3 value="20" min=1 /> minutes
+					</div>
+				</div>
 				<div class="form-group">
 					<label for='vc_target'>Video Click Target</label>
 					<input type="url" id='vc_target' class="form-control" placeholder="https://videos.example.com/?video_url=%v">
