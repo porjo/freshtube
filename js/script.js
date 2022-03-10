@@ -76,7 +76,7 @@ var nextcloudRe = /\/download\/?$/;
 		$("#settings").slideToggle();
 	});
 
-	$("#refresh_button").click(function() {
+	$("#save_button").click(function() {
 		refresh();
 	});
 
