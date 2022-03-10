@@ -72,8 +72,8 @@ var nextcloudRe = /\/download\/?$/;
 		$(this).closest(".channel").find(".would_hide").toggle();
 	});
 
-	$("#showhide").click(function() {
-		$("#search_input").slideToggle();
+	$("#settings_button").click(function() {
+		$("#settings").slideToggle();
 	});
 
 	$("#refresh_button").click(function() {
@@ -157,7 +157,7 @@ var nextcloudRe = /\/download\/?$/;
 
 		$.when.apply($, lines.map(function(line) {
 			if( line.trim() == "" ) {return; }
-			$("#search_input").slideUp();
+			$("#settings").slideUp();
 			if( line.match(rssRe) !== null ) {
 				return $.get(line).then(function(data) {
 					handleRSS(data);

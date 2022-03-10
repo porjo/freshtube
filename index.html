@@ -14,39 +14,36 @@
 	<body>
 
 		<div class="container">
-			<h1>FreshTube</h1>
+			<div id="title_bar">
+				<h1 id="main_title">FreshTube</h1>
+				<button id="settings_button" type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-cog"></span></button>
+			</div>
 
 			<div id="error-box" class="alert alert-danger" role="alert"></div>
 
-			<form id="search_bar" class="well">
-				<div id="search_input">
+			<form id="settings" class="well">
+				<div class="form-group">
+					<label for='apikey'>API Key</label>
+					<p class='quiet_text'>Use a YouTube API key from the <a href='https://console.developers.google.com'>Google Developer's Console</a>.</p>
+					<input type='text' id='apikey' class="form-control">
+				</div>
+				<div class="form-group">
+					<label for='video_urls'>Channels / Users</label>
+					<p class='quiet_text'>Paste either YouTube URLs containing a username or channel ID (one per line), or just the username or channel ID on its own.</p>
+					<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
 					<div class="form-group">
-						<label for='apikey'>API Key</label>
-						<p class='quiet_text'>Use a YouTube API key from the <a href='https://console.developers.google.com'>Google Developer's Console</a>.</p>
-						<input type='text' id='apikey' class="form-control">
-					</div>
-					<div class="form-group">
-						<label for='video_urls'>Channels / Users</label>
-						<p class='quiet_text'>Paste either YouTube URLs containing a username or channel ID (one per line), or just the username or channel ID on its own.</p>
-						<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
-						<div class="form-group">
-							<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
-							<input type='text' id="nextcloud_url" class="form-control">
-						</div>
-					</div>
-					<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
-					<input type="checkbox" id='hide_old_check'> hide videos older than <input id="hide_old_days" type="number" size=5 value="7" min=1 /> days<br>
-					<input type="checkbox" id='hide_future_check'> hide videos screening greater than <input id="hide_future_hours" type="number" size=5 value="2" min=1 /> hours in the future<br>
-					<input type="checkbox" id='hide_time_check'> hide videos shorter than <input id="hide_time_mins" type="number" size=5 value="20" min=1 /> minutes
-					<div class="form-group">
-						<label for='vc_target'>Video Click Target</label>
-						<input type="url" id='vc_target' class="form-control" placeholder="https://videos.example.com/?video_url=%v">
-						<small class='form-text text-muted'>Used to override video click. Use macro '%v' to insert video URL into target URL (URL encoded).</small>
+						<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
+						<input type='text' id="nextcloud_url" class="form-control">
 					</div>
 				</div>
-				<div id="refresh_bar">
-					<button id='refresh_button' type="button" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
-					<button id='showhide' type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-cog"></span> Settings</button>
+				<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
+				<input type="checkbox" id='hide_old_check'> hide videos older than <input id="hide_old_days" type="number" size=5 value="7" min=1 /> days<br>
+				<input type="checkbox" id='hide_future_check'> hide videos screening greater than <input id="hide_future_hours" type="number" size=5 value="2" min=1 /> hours in the future<br>
+				<input type="checkbox" id='hide_time_check'> hide videos shorter than <input id="hide_time_mins" type="number" size=5 value="20" min=1 /> minutes
+				<div class="form-group">
+					<label for='vc_target'>Video Click Target</label>
+					<input type="url" id='vc_target' class="form-control" placeholder="https://videos.example.com/?video_url=%v">
+					<small class='form-text text-muted'>Used to override video click. Use macro '%v' to insert video URL into target URL (URL encoded).</small>
 				</div>
 			</form>
 
