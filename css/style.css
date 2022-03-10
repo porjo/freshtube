@@ -198,6 +198,9 @@ footer, header, hgroup, menu, nav, section {
 		display: inline-block;
 		max-width: 70%;
 	}
+	.video {
+		max-width: 150px;
+	}
 }
 
 
