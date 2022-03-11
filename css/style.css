@@ -62,6 +62,7 @@ footer, header, hgroup, menu, nav, section {
 
 #settings {
 	margin-bottom: 50px;
+	display: none;
 }
 
 #error-box {
