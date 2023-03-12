@@ -6,7 +6,7 @@ var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
-var rssRe = /(\/feed|\.rss|rss\.|\.xml)/;
+var rssRe = /(\/feed|rss|\.xml)/;
 var nextcloudRe = /\/download\/?$/;
 
 
