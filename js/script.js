@@ -266,12 +266,9 @@ var nextcloudRe = /\/download\/?$/;
 		var rssVids = [];
 		$channel.find("item").slice(0,10).each(function () {
 			$el = $(this);
-			itemImageURL = $el.find("image > url").text();
+			itemImageURL = $el.find("itunes\\:image").attr('href');
 			if( itemImageURL == '' ) {
-				itemImageURL = $el.find("itunes\\:image").attr('href');
-				if( itemImageURL == '' ) {
-					itemImageURL = channelImageURL;
-				}
+				itemImageURL = channelImageURL;
 			}
 			rssVids.push({
 				"snippet": {
