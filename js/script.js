@@ -6,6 +6,8 @@ var watchURL = "https://www.youtube.com/watch";
 
 var channelRe = /youtube\.com\/channel\/([^\/]+)\/?/;
 var userRe = /youtube\.com\/user\/([^\/]+)\/?/;
+var handleRe = /youtube\.com\/@([^\/]+)\/?/;
+var channelIDRe = /channel_id=(UC[-_a-z0-9]{22})/i;
 var rssRe = /(\/feed|rss|\.xml)/;
 var nextcloudRe = /\/download\/?$/;
 
@@ -166,6 +168,7 @@ var nextcloudRe = /\/download\/?$/;
 				var url = apiChannelURL + "&key=" + key;
 				var chanMatches = line.match(channelRe);
 				var userMatches = line.match(userRe);
+				var ytHandleMatches = line.match(handleRe);
 				var channelURL = 'https://www.youtube.com/';
 				if( chanMatches && chanMatches.length > 1 ) {
 					channelURL += 'channel/' + chanMatches[1];
@@ -173,6 +176,20 @@ var nextcloudRe = /\/download\/?$/;
 				} else if( userMatches && userMatches.length > 1 ) {
 					channelURL += 'user/' + userMatches[1];
 					url += "&forUsername=" + userMatches[1];
+				} else if (ytHandleMatches && ytHandleMatches.length > 1) {
+					return $.get(line, function (page) {
+						let chanMatches = page.match(channelIDRe);
+						if (chanMatches && chanMatches.length > 1) {
+							channelURL += 'channel/' + chanMatches[1];
+							url += "&id=" + chanMatches[1];
+						} else {
+							// return empty promise
+							return $.when();
+						}
+						return $.get(url).then(handleChannel, errorBox).then(function (data) {
+							handlePlaylist(channelURL, data);
+						}, errorBox);
+					});
 				} else {
 					id = line.trim();
 					if( id.length == 24 ) {
@@ -181,7 +198,8 @@ var nextcloudRe = /\/download\/?$/;
 						url += "&forUsername=" + id;
 					}
 				}
-				return $.get(url).then(handleChannel, errorBox).then(function(data) {
+
+				return $.get(url).then(handleChannel, errorBox).then(function (data) {
 					handlePlaylist(channelURL, data);
 				}, errorBox);
 			}
@@ -218,7 +236,7 @@ var nextcloudRe = /\/download\/?$/;
 		return $.get(url);
 	}
 
-	function handlePlaylist(apiChannelURL, data) {
+	function handlePlaylist(channelURL, data) {
 
 		if( typeof data === 'undefined' || typeof data.items === 'undefined' ) {return;}
 		if( data.items.length == 0 ) { return; }
@@ -230,7 +248,7 @@ var nextcloudRe = /\/download\/?$/;
 		});
 		videosOuter = "<div class='channel'>";
 		var channelTitle = data.items[0].snippet.channelTitle;
-		videosOuter += "<div class='channel_title'><a href='" + apiChannelURL + "/videos' target='_blank'>" + channelTitle + "</a>";
+		videosOuter += "<div class='channel_title'><a href='" + channelURL + "/videos' target='_blank'>" + channelTitle + "</a>";
 		videosOuter += "<div class='close_channel'><span class='glyphicon glyphicon-remove'></span></div>";
 		videosOuter += "</div>";
 		videosOuter += "<div class='video_list'>";
