@@ -64,6 +64,12 @@ var nextcloudRe = /\/download\/?$/;
 		// Don't put anything here - refresh() should happen last
 	}
 
+	key = $("#apikey").val();
+	if (key == '') {
+		$("#settings").slideDown();
+		return;
+	}
+
 	$("body").on("click", ".close_channel", function() {
 		$(this).closest(".channel").slideUp();
 	});

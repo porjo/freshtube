@@ -31,17 +31,19 @@
 					<label for='video_urls'>Channels / Users</label>
 					<p class='quiet_text'>Paste YouTube URLs containing a username or channel ID (not channel name), or podcast RSS feed URL. One URL per line.</p>
 					<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
-					<div class="form-group">
-						<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
-						<input type='text' id="nextcloud_url" class="form-control">
-					</div>
 				</div>
-				<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
+				<div class="form-group">
+					<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
+					<input type='text' id="nextcloud_url" class="form-control">
+				</div>
+				<div class="form-group">
+					<input type="checkbox" id='highlight_new' value=1 checked> highlight new videos (since last refresh)<br>
+				</div>
 				<div class="form-group">
 					<label for="hide_group">Hide Videos</label>
 					<div id="hide_group" class="input-group">
-						<input type="checkbox" id='hide_old_check'> older than <input id="hide_old_days" type="number" size=2 value="7" min=1 /> days<br>
-						<input type="checkbox" id='hide_future_check'> screening &gt; <input id="hide_future_hours" type="number" size=2 value="2" min=1 /> hours in the future<br>
+						<input type="checkbox" id='hide_old_check'> older than <input id="hide_old_days" type="number" size=3 value="7" min=1 /> days<br>
+						<input type="checkbox" id='hide_future_check'> screening &gt; <input id="hide_future_hours" type="number" size=3 value="2" min=1 /> hours in the future<br>
 						<input type="checkbox" id='hide_time_check'> &lt; <input id="hide_time_mins" type="number" size=3 value="20" min=1 /> minutes
 					</div>
 				</div>
