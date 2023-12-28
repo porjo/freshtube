@@ -91,6 +91,7 @@ var nextcloudRe = /\/download\/?$/;
 	});
 
 	function errorBox(data) {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 		var errMsg = 'Unknown error occured';
 		if(typeof data == 'object' && 'responseJSON' in data ) {
 			$.each(data.responseJSON.error.errors, function(idx,val) {
