@@ -67,7 +67,6 @@ var nextcloudRe = /\/download\/?$/;
 	key = $("#apikey").val();
 	if (key == '') {
 		$("#settings").slideDown();
-		return;
 	}
 
 	$("body").on("click", ".close_channel", function() {
@@ -107,6 +106,10 @@ var nextcloudRe = /\/download\/?$/;
 	function refresh() {
 		$("#error-box").hide();
 		key = $("#apikey").val();
+		if (key == '') {
+			errorBox('API key cannot be empty');
+			//return;
+		}
 		ids = [];
 		var lines = '';
 		nextcloudURL = $("#nextcloud_url").val();
