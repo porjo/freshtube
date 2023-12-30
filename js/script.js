@@ -74,11 +74,11 @@ var nextcloudRe = /\/download\/?$/;
 	});
 
 	$("body").on("click", ".show_hidden", function() {
-		$(this).closest(".channel").find(".would_hide").toggle();
+		$(this).closest(".channel").find(".would_hide").slideToggle(200);
 	});
 
 	$("#settings_button").click(function() {
-		$("#settings").slideToggle();
+		$("#settings").slideToggle(200);
 	});
 
 	$("#save_button").click(function() {
