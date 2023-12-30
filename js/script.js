@@ -109,7 +109,7 @@ var nextcloudRe = /\/download\/?$/;
 		key = $("#apikey").val();
 		if (key == '') {
 			errorBox('API key cannot be empty');
-			//return;
+			return;
 		}
 		ids = [];
 		var lines = '';
