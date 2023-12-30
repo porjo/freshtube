@@ -97,6 +97,8 @@ footer, header, hgroup, menu, nav, section {
 	padding: 10px;
 	margin-top: 20px;
 	font-size: 0.9em;
+	display: flex;
+	justify-content: space-between;
 }
 
 #showhide {
@@ -202,6 +204,10 @@ footer, header, hgroup, menu, nav, section {
 	.video {
 		max-width: 150px;
 	}
+}
+
+.github-link img {
+	margin: 5px 10px;
 }
 
 

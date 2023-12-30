@@ -29,11 +29,11 @@
 				</div>
 				<div class="form-group">
 					<label for='video_urls'>Channels / Users</label>
-					<p class='quiet_text'>Paste YouTube URLs containing a username or channel ID (not channel name), or podcast RSS feed URL. One URL per line.</p>
+					<p class='quiet_text'>Paste YouTube URLs containing a username or channel ID (not channel name or handle), or podcast RSS feed URL. One URL per line.</p>
 					<textarea id="video_urls" rows=8 cols=50 class="form-control"></textarea>
 				</div>
 				<div class="form-group">
-					<p class='quiet_text'>Paste a Nextcloud share link to a file containing the channel listing. NOTE: server must send appropriate CORS header.</p>
+					<p class='quiet_text'>(optional) Paste a Nextcloud share link to a file containing the channel listing. Server must send appropriate CORS header.</p>
 					<input type='text' id="nextcloud_url" class="form-control">
 				</div>
 				<div class="form-group">
@@ -44,7 +44,7 @@
 					<div id="hide_group" class="input-group">
 						<input type="checkbox" id='hide_old_check'> older than <input id="hide_old_days" type="number" size=3 value="7" min=1 /> days<br>
 						<input type="checkbox" id='hide_future_check'> screening &gt; <input id="hide_future_hours" type="number" size=3 value="2" min=1 /> hours in the future<br>
-						<input type="checkbox" id='hide_time_check'> &lt; <input id="hide_time_mins" type="number" size=3 value="20" min=1 /> minutes
+						<input type="checkbox" id='hide_time_check'> &lt; <input id="hide_time_mins" type="number" size=3 value="20" min=1 /> minutes in duration
 					</div>
 				</div>
 				<div class="form-group">
@@ -59,8 +59,8 @@
 
 			</div>
 			<div id="footer">
-				<p class='quiet_text'><strong>Note:</strong> the API key &amp; other data entered will be saved in your browser's local storage and may be visible to other users of this computer.</p>
-				<p class='quiet_text'><a href='https://github.com/porjo/freshtube'>FreshTube on Github</a></p>
+				<p class='quiet_text'><strong>Note:</strong> the API key &amp; other data entered will be saved in your browser's local storage.</p>
+				<div class='github-link'><a href='https://github.com/porjo/freshtube'><img src='github-mark.svg' width="25px"/></a></div>
 			</div>
 		</div>
 
