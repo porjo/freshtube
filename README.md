@@ -6,4 +6,4 @@ Runs entirely in the browser, storing data in local storage.
 
 Use it here: https://porjo.github.io/freshtube/
 
-![Screenshot](https://porjo.github.io/freshtube/screenshot.png)
+![Screenshot](https://porjo.github.io/freshtube/screenshot.jpg)
