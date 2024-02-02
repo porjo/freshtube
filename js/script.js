@@ -35,12 +35,31 @@ $.ajaxSetup({
   cache: false
 })
 
+// setConfigFromOldStorage used to migrate to new config object
+// in future this function can be removed
+function setConfigFromOldStorage () {
+  config.key = localStorage.getItem("apikey")
+  config.highlightNew = localStorage.getItem("highlightNew")
+  config.hideOldCheck = localStorage.getItem("hideOldCheck")
+  config.hideOldDays = Number(localStorage.getItem("hideOldDays"))
+  config.hideFutureCheck = localStorage.getItem("hideFutureCheck")
+  config.hideFutureHours = Number(localStorage.getItem("hideFutureHours"))
+  config.hideTimeMins = Number(localStorage.getItem("hideTimeMins"))
+  config.videoClickTarget = localStorage.getItem("videoClickTarget")
+  config.nextcloudURL = localStorage.getItem("nextcloudURL")
+  config.lines = localStorage.getItem("lines").split('\n').filter(i => i) // filter ensures we don't get [""]
+}
+
 if (typeof (Storage) !== 'undefined') {
-  const sconfigStr = localStorage.getItem('config')
+  const sconfigStr = localStorage.getItem('freshtube_config')
   if (sconfigStr) {
     config = JSON.parse(sconfigStr)
+  } else if(localStorage.getItem("apikey") != "") {
+    console.log("here", config)
+      // if old config detected, then update new config from that
+      setConfigFromOldStorage()
   }
-  console.log(sconfigStr, config)
+  //console.log(sconfigStr, config)
   $('#apikey').val(config.key)
   $('#highlight_new').prop('checked', config.highlightNew)
   $('#hide_old_check').prop('checked', config.hideOldCheck)
@@ -137,20 +156,20 @@ function _refresh (lines) {
   $('#videos').html('')
 
   // update config
-  config.lines = $('#video_urls').val().split('\n').filter(i => i)
+  config.lines = $('#video_urls').val().split('\n').filter(i => i) // filter ensures we don't get [""]
   config.highlightNew = $('#highlight_new').is(':checked')
   config.lastRefresh = dayjs().toISOString()
   config.hideOldCheck = $('#hide_old_check').is(':checked')
-  config.hideOldDays = $('#hide_old_days').val()
+  config.hideOldDays = Number($('#hide_old_days').val())
   config.hideFutureCheck = $('#hide_future_check').is(':checked')
-  config.hideFutureHours = $('#hide_future_hours').val()
+  config.hideFutureHours = Number($('#hide_future_hours').val())
   config.hideTimeCheck = $('#hide_time_check').is(':checked')
-  config.hideTimeMins = $('#hide_time_mins').val()
+  config.hideTimeMins = Number($('#hide_time_mins').val())
   config.videoClickTarget = $('#vc_target').val()
   config.nextcloudURL = $('#nextcloud_url').val()
 
   // store config in local storage
-  localStorage.setItem('config', JSON.stringify(config))
+  localStorage.setItem('freshtube_config', JSON.stringify(config))
 
   $.when.apply($, lines.map(function (line) {
     if (line.trim() === '') { return null }
@@ -174,8 +193,10 @@ function _refresh (lines) {
         const id = line.trim()
         if (id.length === 24) {
           url += '&id=' + id
+          channelURL += 'channel/' + id
         } else {
           url += '&forUsername=' + id
+          channelURL += 'user/' + id
         }
       }
       return $.get(url).then(handleChannel, errorBox).then(function (data) {
