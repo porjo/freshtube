@@ -38,28 +38,27 @@ $.ajaxSetup({
 // setConfigFromOldStorage used to migrate to new config object
 // in future this function can be removed
 function setConfigFromOldStorage () {
-  config.key = localStorage.getItem("apikey")
-  config.highlightNew = localStorage.getItem("highlightNew")
-  config.hideOldCheck = localStorage.getItem("hideOldCheck")
-  config.hideOldDays = Number(localStorage.getItem("hideOldDays"))
-  config.hideFutureCheck = localStorage.getItem("hideFutureCheck")
-  config.hideFutureHours = Number(localStorage.getItem("hideFutureHours"))
-  config.hideTimeMins = Number(localStorage.getItem("hideTimeMins"))
-  config.videoClickTarget = localStorage.getItem("videoClickTarget")
-  config.nextcloudURL = localStorage.getItem("nextcloudURL")
-  config.lines = localStorage.getItem("lines").split('\n').filter(i => i) // filter ensures we don't get [""]
+  config.key = localStorage.getItem('apikey')
+  config.highlightNew = localStorage.getItem('highlightNew')
+  config.hideOldCheck = localStorage.getItem('hideOldCheck')
+  config.hideOldDays = Number(localStorage.getItem('hideOldDays'))
+  config.hideFutureCheck = localStorage.getItem('hideFutureCheck')
+  config.hideFutureHours = Number(localStorage.getItem('hideFutureHours'))
+  config.hideTimeMins = Number(localStorage.getItem('hideTimeMins'))
+  config.videoClickTarget = localStorage.getItem('videoClickTarget')
+  config.nextcloudURL = localStorage.getItem('nextcloudURL')
+  config.lines = localStorage.getItem('lines').split('\n').filter(i => i) // filter ensures we don't get ['']
 }
 
 if (typeof (Storage) !== 'undefined') {
   const sconfigStr = localStorage.getItem('freshtube_config')
   if (sconfigStr) {
     config = JSON.parse(sconfigStr)
-  } else if(localStorage.getItem("apikey") != "") {
-    console.log("here", config)
-      // if old config detected, then update new config from that
-      setConfigFromOldStorage()
+  } else if (localStorage.getItem('apikey') !== '') {
+    // if old config detected, then update new config from that
+    setConfigFromOldStorage()
   }
-  //console.log(sconfigStr, config)
+  // console.log(sconfigStr, config)
   $('#apikey').val(config.key)
   $('#highlight_new').prop('checked', config.highlightNew)
   $('#hide_old_check').prop('checked', config.hideOldCheck)
