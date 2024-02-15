@@ -16,6 +16,8 @@ const nextcloudRe = /\/download\/?$/
 
 let videos = ''
 
+let lastRefresh = null
+
 let config = {
   ids: [],
   key: '',
@@ -47,6 +49,7 @@ function setConfigFromOldStorage () {
   config.hideTimeMins = Number(localStorage.getItem('hideTimeMins'))
   config.videoClickTarget = localStorage.getItem('videoClickTarget')
   config.nextcloudURL = localStorage.getItem('nextcloudURL')
+  config.lastRefresh = localStorage.getItem('lastRefresh')
   config.lines = localStorage.getItem('lines').split('\n').filter(i => i) // filter ensures we don't get ['']
 }
 
@@ -58,6 +61,7 @@ if (typeof (Storage) !== 'undefined') {
     // if old config detected, then update new config from that
     setConfigFromOldStorage()
   }
+  lastRefresh = config.lastRefresh
   // console.log(sconfigStr, config)
   $('#apikey').val(config.key)
   $('#highlight_new').prop('checked', config.highlightNew)
@@ -400,7 +404,7 @@ function videoHTML (k, v) {
     div += '<div class="video_duration"></div>'
   }
   div += '<div class="video_footer">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
-  if (config.lastRefresh && config.highlightNew && dayjs(config.lastRefresh).isBefore(v.snippet.publishedAt)) {
+  if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
     div += '<div class="ribbon"><span>New</span></div>'
   }
   div += '</div>'
