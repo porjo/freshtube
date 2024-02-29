@@ -183,6 +183,7 @@ footer, header, hgroup, menu, nav, section {
 
 .would_hide {
 	border: 2px dotted #0d05ff;
+	display: none;
 }
 
 .grey-out {

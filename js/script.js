@@ -220,7 +220,6 @@ function hiddenItemsStatus () {
     let hiddenVids = false
     $(this).find('.video_list .video').each(function () {
       if ($(this).css('display') === 'none') {
-        $(this).addClass('would_hide')
         hiddenVids = true
       }
     })
@@ -340,7 +339,7 @@ function getDurations () {
       }
       $('#' + v.id + ' .video_duration').text(durationStr)
       if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-        $('#' + v.id).hide()
+        $('#' + v.id).addClass('would_hide')
       }
     })
   })
@@ -352,7 +351,7 @@ function getLiveBroadcasts () {
     $.each(data.items, function (k, v) {
       if (v.snippet.liveBroadcastContent === 'upcoming') {
         if (config.hideFutureCheck && dayjs().add(config.hideFutureHours, 'hours').isBefore(dayjs(v.liveStreamingDetails.scheduledStartTime))) {
-          $('#' + v.id).hide()
+          $('#' + v.id).addClass('would_hide')
         }
         $('#' + v.id + ' .video_sched').text(dayjs(v.liveStreamingDetails.scheduledStartTime).fromNow()).show()
         $('#' + v.id + ' .video_thumb img').addClass('grey-out')
@@ -368,6 +367,7 @@ function videoHTML (k, v) {
     return
   }
 
+  let rssHide = false
   let duration
   // RSS durations here
   if ('duration' in v.snippet && v.snippet.duration !== '') {
@@ -377,7 +377,7 @@ function videoHTML (k, v) {
       duration = dayjs.duration(v.snippet.duration, 'seconds')
     }
     if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-      return
+      rssHide = true
     }
   }
   const fullTitle = v.snippet.title
@@ -389,7 +389,7 @@ function videoHTML (k, v) {
   const id = v.snippet.resourceId.videoId
   config.ids.push(id)
 
-  let div = '<div class="video" id="' + id + '">'
+  let div = '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '">'
   let watch = ''
   if ('watchURL' in v.snippet) {
     watch = v.snippet.watchURL
