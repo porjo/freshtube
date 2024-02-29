@@ -244,9 +244,7 @@ function handlePlaylist (apiChannelURL, data) {
   if (data.items.length === 0) { return }
   // sort items by publish date
   data.items.sort(function (a, b) {
-    return dayjs(a.snippet.publishedAt).isBefore(
-      dayjs(b.snippet.publishedAt)
-    )
+    return dayjs(a.snippet.publishedAt).isBefore(dayjs(b.snippet.publishedAt))
   })
   let videosOuter = '<div class="channel">'
   const channelTitle = data.items[0].snippet.channelTitle
@@ -291,6 +289,12 @@ function handleRSS (data) {
     if (itemImageURL === '') {
       itemImageURL = channelImageURL
     }
+
+    let watchURL = $el.find('enclosure').attr('url')
+    if (!watchURL) {
+      watchURL = $el.find('link').text()
+    }
+
     rssVids.push({
       snippet: {
         title: $el.find('title').text(),
@@ -301,7 +305,7 @@ function handleRSS (data) {
           medium: { url: itemImageURL }
         },
         publishedAt: $el.find('pubDate').text(),
-        watchURL: $el.find('enclosure').attr('url'),
+        watchURL,
         duration: $el.find('itunes\\:duration').text()
       }
     })
