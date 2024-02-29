@@ -179,7 +179,7 @@ function _refresh (lines) {
     $('#settings').slideUp()
     if (line.match(rssRe) !== null) {
       return $.get(line).then(function (data) {
-        handleRSS(data)
+        handleRSS(line, data)
       }, errorBox)
     } else {
       let url = apiChannelURL + '&key=' + config.key
@@ -265,7 +265,7 @@ function handlePlaylist (apiChannelURL, data) {
   $('#videos').append(videosOuter)
 }
 
-function handleRSS (data) {
+function handleRSS (rssURL, data) {
   if (data.length === 0) { return }
 
   const $channel = $(data).find('channel')
@@ -276,7 +276,7 @@ function handleRSS (data) {
 
   let videosOuter = ''
   videosOuter = '<div class="channel">'
-  videosOuter += '<div class="channel_title"><a href="' + channelURL + '" target="_blank">' + channelTitle + '</a>'
+  videosOuter += '<div class="channel_title"><a href="' + channelURL + '" title="' + rssURL + '" target="_blank">' + channelTitle + '</a>'
   videosOuter += '<div class="close_channel"><span class="glyphicon glyphicon-remove"></span></div>'
   videosOuter += '</div>'
   videosOuter += '<div class="video_list">'
