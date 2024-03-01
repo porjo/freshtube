@@ -178,7 +178,8 @@ function _refresh (lines) {
   localStorage.setItem('freshtube_config', JSON.stringify(config))
 
   $.when.apply($, lines.map(function (line) {
-    if (line.trim() === '') { return null }
+    // skip empty lines and comments
+    if (line.trim() === '' || line.match(/^#/)) { return null }
     $('#settings').slideUp()
     if (line.match(rssRe) !== null) {
       return $.get(line).then(function (data) {
