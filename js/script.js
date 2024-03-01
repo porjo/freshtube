@@ -16,12 +16,13 @@ const nextcloudRe = /\/download\/?$/
 
 let videos = ''
 
-let rssItemLimit = 20
+const rssItemLimit = 20
 
 let lastRefresh = null
 
+let ytIds = []
+
 let config = {
-  ids: [],
   key: '',
   lastRefresh: null,
   highlightNew: true,
@@ -134,7 +135,7 @@ function refresh () {
     errorBox('API key cannot be empty')
     return
   }
-  config.ids = []
+  ytIds = []
   let lines = ''
   config.nextcloudURL = $('#nextcloud_url').val()
   if (config.nextcloudURL !== '') {
@@ -325,7 +326,7 @@ function handleRSS (rssURL, data) {
 }
 
 function getDurations () {
-  const url = apiDurationURL + '&key=' + config.key + '&id=' + config.ids.join(',')
+  const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
   $.get(url, function (data) {
     $.each(data.items, function (k, v) {
       const duration = dayjs.duration(v.contentDetails.duration)
@@ -348,7 +349,7 @@ function getDurations () {
 }
 
 function getLiveBroadcasts () {
-  const url = apiLiveBroadcastURL + '&key=' + config.key + '&id=' + config.ids.join(',')
+  const url = apiLiveBroadcastURL + '&key=' + config.key + '&id=' + ytIds.join(',')
   $.get(url, function (data) {
     $.each(data.items, function (k, v) {
       if (v.snippet.liveBroadcastContent === 'upcoming') {
@@ -369,6 +370,8 @@ function videoHTML (k, v) {
     return
   }
 
+  const id = v.snippet.resourceId.videoId
+
   let rssHide = false
   let duration
   // RSS durations here
@@ -381,15 +384,15 @@ function videoHTML (k, v) {
     if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
       rssHide = true
     }
+  } else {
+    ytIds.push(id)
   }
+
   const fullTitle = v.snippet.title
   let title = v.snippet.title
   if (title.length > 50) {
     title = title.substring(0, 50) + '...'
   }
-
-  const id = v.snippet.resourceId.videoId
-  config.ids.push(id)
 
   let div = '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '">'
   let watch = ''
