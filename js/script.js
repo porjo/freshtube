@@ -16,6 +16,8 @@ const nextcloudRe = /\/download\/?$/
 
 let videos = ''
 
+let rssItemLimit = 20
+
 let lastRefresh = null
 
 let config = {
@@ -282,7 +284,7 @@ function handleRSS (rssURL, data) {
   videos = ''
 
   const rssVids = []
-  $channel.find('item').slice(0, 10).each(function () {
+  $channel.find('item').slice(0, rssItemLimit).each(function () {
     const $el = $(this)
     let itemImageURL = $el.find('itunes\\:image').attr('href')
     if (itemImageURL === '') {
