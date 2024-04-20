@@ -8,6 +8,7 @@ const apiPlaylistURL = 'https://www.googleapis.com/youtube/v3/playlistItems?part
 const apiDurationURL = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails'
 const apiLiveBroadcastURL = 'https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails'
 const watchURL = 'https://www.youtube.com/watch'
+const sponsorBlockURL = 'https://sponsor.ajay.app/api/skipSegments'
 
 const channelRe = /youtube\.com\/channel\/([^/]+)\/?/
 const userRe = /youtube\.com\/user\/([^/]+)\/?/
@@ -109,8 +110,8 @@ $('#save_button').click(function () {
   refresh()
 })
 
-$('#videos').on('click', '.ribbon', function () {
-  const href = $(this).closest('.video').find('.video_thumb > a').attr('href')
+$('#videos').on('click', '.video', function () {
+  const href = $(this).data('clickUrl')
   location.href = href
 })
 
@@ -212,6 +213,7 @@ function _refresh (lines) {
     }
   })).done(function () {
     getDurations()
+    getSponsorBlock()
     getLiveBroadcasts()
     setTimeout(function () {
       hiddenItemsStatus()
@@ -326,6 +328,23 @@ function handleRSS (rssURL, data) {
   $('#videos').append(videosOuter)
 }
 
+function getSponsorBlock () {
+  $.each(ytIds, function (k, videoId) {
+    if (videoId.length !== 11) {
+      return
+    }
+    const url = sponsorBlockURL + '?videoID=' + videoId
+    $.get(url, function (data, status, xhr) {
+      if (xhr.status !== 200) {
+        return
+      }
+      if (Array.isArray(data) && data.length > 0) {
+        $('#' + videoId + ' .sponsorblock > img').show()
+      }
+    })
+  })
+}
+
 function getDurations () {
   const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
   $.get(url, function (data) {
@@ -395,7 +414,6 @@ function videoHTML (k, v) {
     title = title.substring(0, 50) + '...'
   }
 
-  let div = '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '">'
   let watch = ''
   if ('watchURL' in v.snippet) {
     watch = v.snippet.watchURL
@@ -403,9 +421,10 @@ function videoHTML (k, v) {
     watch = watchURL + '?v=' + id
   }
   const clickURL = getClickURL(watch)
+  let div = '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" data-click-url="' + clickURL + '">'
   div += '<div class="video_thumb">'
   div += '<div class="video_sched"></div>'
-  div += '<a href="' + clickURL + '" target="_blank"><img src="' + v.snippet.thumbnails.medium.url + '"></a>'
+  div += '<img src="' + v.snippet.thumbnails.medium.url + '">'
   div += '</div>'
   div += '<div class="video_title" title="' + fullTitle + '">' + title + '</div>'
   if (duration) {
@@ -413,7 +432,10 @@ function videoHTML (k, v) {
   } else {
     div += '<div class="video_duration"></div>'
   }
-  div += '<div class="video_footer">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
+  div += '<div class="video_footer">'
+  div += '<div class="sponsorblock"><img src="sponsorblock.png"></div>'
+  div += '<div class="age">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
+  div += '</div>'
   if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
     div += '<div class="ribbon"><span>New</span></div>'
   }

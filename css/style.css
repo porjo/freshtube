@@ -116,10 +116,16 @@ footer, header, hgroup, menu, nav, section {
 	font-size: 0.9em;
 	display: flex;
 	flex-direction: column;
+	transition: transform 300ms;
+	transition-timing-function: ease-out;
+	cursor: pointer;
 }
 
 .video:hover {
 	box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+	transform: scale(105%);
+	transition: transform 50ms;
+	z-index: 1;
 }
 
 .video_title {
@@ -132,12 +138,9 @@ footer, header, hgroup, menu, nav, section {
 
 .video_footer {
 	padding: 3px;
-	text-align: right;
 	font-size: 0.9em;
-}
-
-.video_thumb {
-	position: relative;
+	display: flex;
+	justify-content: space-between;
 }
 
 .video_thumb img {
@@ -195,6 +198,16 @@ footer, header, hgroup, menu, nav, section {
 	color: red;
 	text-shadow: 0px 0px 2px black;
 	font-size: 1.2em;
+}
+
+.sponsorblock {
+	position: relative;
+}
+
+.sponsorblock img {
+	position: absolute;
+	height: 100%;
+	display: none;
 }
 
 @media (max-width: 800px) {
