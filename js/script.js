@@ -110,11 +110,6 @@ $('#save_button').click(function () {
   refresh()
 })
 
-$('#videos').on('click', '.video', function () {
-  const href = $(this).data('clickUrl')
-  location.href = href
-})
-
 function errorBox (data) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
   let errMsg = 'Unknown error occured'
@@ -421,27 +416,29 @@ function videoHTML (k, v) {
     watch = watchURL + '?v=' + id
   }
   const clickURL = getClickURL(watch)
-  let div = '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" data-click-url="' + clickURL + '">'
-  div += '<div class="video_thumb">'
-  div += '<div class="video_sched"></div>'
-  div += '<img src="' + v.snippet.thumbnails.medium.url + '">'
-  div += '</div>'
-  div += '<div class="video_title" title="' + fullTitle + '">' + title + '</div>'
+  let video = '<a href="' + clickURL + '">'
+  video += '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '">'
+  video += '<div class="video_thumb">'
+  video += '<div class="video_sched"></div>'
+  video += '<img src="' + v.snippet.thumbnails.medium.url + '">'
+  video += '</div>'
+  video += '<div class="video_title" title="' + fullTitle + '">' + title + '</div>'
   if (duration) {
-    div += '<div class="video_duration">' + (duration.hours() > 0 ? duration.hours() + ':' : '') + pad(duration.minutes(), 2) + ':' + pad(duration.seconds(), 2) + '</div>'
+    video += '<div class="video_duration">' + (duration.hours() > 0 ? duration.hours() + ':' : '') + pad(duration.minutes(), 2) + ':' + pad(duration.seconds(), 2) + '</div>'
   } else {
-    div += '<div class="video_duration"></div>'
+    video += '<div class="video_duration"></div>'
   }
-  div += '<div class="video_footer">'
-  div += '<div class="sponsorblock"><img src="sponsorblock.png"></div>'
-  div += '<div class="age">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
-  div += '</div>'
+  video += '<div class="video_footer">'
+  video += '<div class="sponsorblock"><img src="sponsorblock.png"></div>'
+  video += '<div class="age">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
+  video += '</div>'
   if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
-    div += '<div class="ribbon"><span>New</span></div>'
+    video += '<div class="ribbon"><span>New</span></div>'
   }
-  div += '</div>'
+  video += '</div>'
+  video += '</a>'
 
-  videos += div
+  videos += video
 }
 
 function getClickURL (url) {
