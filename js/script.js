@@ -416,8 +416,7 @@ function videoHTML (k, v) {
     watch = watchURL + '?v=' + id
   }
   const clickURL = getClickURL(watch)
-  let video = '<a href="' + clickURL + '">'
-  video += '<div class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '">'
+  let video = '<a class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" href="' + clickURL + '">'
   video += '<div class="video_thumb">'
   video += '<div class="video_sched"></div>'
   video += '<img src="' + v.snippet.thumbnails.medium.url + '">'
@@ -435,7 +434,6 @@ function videoHTML (k, v) {
   if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
     video += '<div class="ribbon"><span>New</span></div>'
   }
-  video += '</div>'
   video += '</a>'
 
   videos += video
