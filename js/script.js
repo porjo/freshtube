@@ -45,6 +45,9 @@ $.ajaxSetup({
 // in future this function can be removed
 function setConfigFromOldStorage () {
   config.key = localStorage.getItem('apikey')
+  if (!config.key) {
+    return
+  }
   config.highlightNew = localStorage.getItem('highlightNew')
   config.hideOldCheck = localStorage.getItem('hideOldCheck')
   config.hideOldDays = Number(localStorage.getItem('hideOldDays'))
@@ -416,7 +419,7 @@ function videoHTML (k, v) {
     watch = watchURL + '?v=' + id
   }
   const clickURL = getClickURL(watch)
-  let video = '<a class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" href="' + clickURL + '">'
+  let video = '<a class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" href="' + clickURL + '" target="_blank">'
   video += '<div class="video_thumb">'
   video += '<div class="video_sched"></div>'
   video += '<img src="' + v.snippet.thumbnails.medium.url + '">'
