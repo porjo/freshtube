@@ -391,16 +391,22 @@ function videoHTML (k, v) {
   const id = v.snippet.resourceId.videoId
 
   let rssHide = false
+  let rssLive = false
   let duration
   // RSS durations here
-  if ('duration' in v.snippet && v.snippet.duration !== '') {
-    if (v.snippet.duration.indexOf(':') > -1) {
-      duration = dayjs.duration(hmsToSecondsOnly(v.snippet.duration), 'seconds')
+  if ('duration' in v.snippet) {
+    if (v.snippet.duration === '') {
+      // if duration not set we assume LIVE
+      rssLive = true
     } else {
-      duration = dayjs.duration(v.snippet.duration, 'seconds')
-    }
-    if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-      rssHide = true
+      if (v.snippet.duration.indexOf(':') > -1) {
+        duration = dayjs.duration(hmsToSecondsOnly(v.snippet.duration), 'seconds')
+      } else {
+        duration = dayjs.duration(v.snippet.duration, 'seconds')
+      }
+      if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
+        rssHide = true
+      }
     }
   } else {
     ytIds.push(id)
@@ -427,7 +433,10 @@ function videoHTML (k, v) {
   video += '<div class="video_title" title="' + fullTitle + '">' + title + '</div>'
   if (duration) {
     video += '<div class="video_duration">' + (duration.hours() > 0 ? duration.hours() + ':' : '') + pad(duration.minutes(), 2) + ':' + pad(duration.seconds(), 2) + '</div>'
+  } else if (rssLive) {
+    video += '<div class="video_duration"><div class="live"><span class="glyphicon glyphicon-record"></span>&nbsp;Live</div></div>'
   } else {
+    // Youtube durations get updated in getDurations()
     video += '<div class="video_duration"></div>'
   }
   video += '<div class="video_footer">'
