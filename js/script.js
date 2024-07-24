@@ -12,6 +12,7 @@ const sponsorBlockURL = 'https://sponsor.ajay.app/api/skipSegments'
 
 const channelRe = /youtube\.com\/channel\/([^/]+)\/?/
 const userRe = /youtube\.com\/user\/([^/]+)\/?/
+const handleRe = /youtube\.com\/(@[^/]+)\/?/
 const rssRe = /(\/feed|rss|\.xml)/
 const nextcloudRe = /\/download\/?$/
 
@@ -41,57 +42,42 @@ $.ajaxSetup({
   cache: false
 })
 
-// setConfigFromOldStorage used to migrate to new config object
-// in future this function can be removed
-function setConfigFromOldStorage () {
-  config.key = localStorage.getItem('apikey')
-  if (!config.key) {
-    return
+function loadConfig() {
+  if (typeof (Storage) !== 'undefined') {
+    const sconfigStr = localStorage.getItem('freshtube_config')
+    if (sconfigStr) {
+      config = JSON.parse(sconfigStr)
+    } else {
+      return
+    }
+
+    lastRefresh = config.lastRefresh
+    // console.log(sconfigStr, config)
+    $('#apikey').val(config.key)
+    $('#highlight_new').prop('checked', config.highlightNew)
+    $('#hide_old_check').prop('checked', config.hideOldCheck)
+    if (config.hideOldDays > 0) {
+      $('#hide_old_days').val(config.hideOldDays)
+    }
+    $('#hide_future_check').prop('checked', config.hideFutureCheck)
+    if (config.hideFutureHours > 0) {
+      $('#hide_future_hours').val(config.hideFutureHours)
+    }
+    $('#hide_time_check').prop('checked', config.hideTimeCheck)
+    if (config.hideTimeMins > 0) {
+      $('#hide_time_mins').val(config.hideTimeMins)
+    }
+    $('#vc_target').val(config.videoClickTarget)
+    if (config.lines || config.nextcloudURL) {
+      $('#nextcloud_url').val(config.nextcloudURL)
+      $('#video_urls').val(config.lines.join('\n'))
+      refresh()
+    }
+    // Don't put anything here - refresh() should happen last
   }
-  config.highlightNew = localStorage.getItem('highlightNew')
-  config.hideOldCheck = localStorage.getItem('hideOldCheck')
-  config.hideOldDays = Number(localStorage.getItem('hideOldDays'))
-  config.hideFutureCheck = localStorage.getItem('hideFutureCheck')
-  config.hideFutureHours = Number(localStorage.getItem('hideFutureHours'))
-  config.hideTimeMins = Number(localStorage.getItem('hideTimeMins'))
-  config.videoClickTarget = localStorage.getItem('videoClickTarget')
-  config.nextcloudURL = localStorage.getItem('nextcloudURL')
-  config.lastRefresh = localStorage.getItem('lastRefresh')
-  config.lines = localStorage.getItem('lines').split('\n').filter(i => i) // filter ensures we don't get ['']
 }
 
-if (typeof (Storage) !== 'undefined') {
-  const sconfigStr = localStorage.getItem('freshtube_config')
-  if (sconfigStr) {
-    config = JSON.parse(sconfigStr)
-  } else if (localStorage.getItem('apikey') !== '') {
-    // if old config detected, then update new config from that
-    setConfigFromOldStorage()
-  }
-  lastRefresh = config.lastRefresh
-  // console.log(sconfigStr, config)
-  $('#apikey').val(config.key)
-  $('#highlight_new').prop('checked', config.highlightNew)
-  $('#hide_old_check').prop('checked', config.hideOldCheck)
-  if (config.hideOldDays > 0) {
-    $('#hide_old_days').val(config.hideOldDays)
-  }
-  $('#hide_future_check').prop('checked', config.hideFutureCheck)
-  if (config.hideFutureHours > 0) {
-    $('#hide_future_hours').val(config.hideFutureHours)
-  }
-  $('#hide_time_check').prop('checked', config.hideTimeCheck)
-  if (config.hideTimeMins > 0) {
-    $('#hide_time_mins').val(config.hideTimeMins)
-  }
-  $('#vc_target').val(config.videoClickTarget)
-  if (config.lines || config.nextcloudURL) {
-    $('#nextcloud_url').val(config.nextcloudURL)
-    $('#video_urls').val(config.lines.join('\n'))
-    refresh()
-  }
-  // Don't put anything here - refresh() should happen last
-}
+loadConfig()
 
 if (config.key === '') {
   $('#settings').slideDown()
@@ -188,6 +174,7 @@ function _refresh (lines) {
       let url = apiChannelURL + '&key=' + config.key
       const chanMatches = line.match(channelRe)
       const userMatches = line.match(userRe)
+      const handleMatches = line.match(handleRe)
       let channelURL = 'https://www.youtube.com/'
       if (chanMatches && chanMatches.length > 1) {
         channelURL += 'channel/' + chanMatches[1]
@@ -195,6 +182,9 @@ function _refresh (lines) {
       } else if (userMatches && userMatches.length > 1) {
         channelURL += 'user/' + userMatches[1]
         url += '&forUsername=' + userMatches[1]
+      } else if (handleMatches && handleMatches.length > 1) {
+        channelURL += handleMatches[1]
+        url += '&forHandle=' + handleMatches[1]
       } else {
         const id = line.trim()
         if (id.length === 24) {
