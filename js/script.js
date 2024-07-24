@@ -42,7 +42,7 @@ $.ajaxSetup({
   cache: false
 })
 
-function loadConfig() {
+function loadConfig () {
   if (typeof (Storage) !== 'undefined') {
     const sconfigStr = localStorage.getItem('freshtube_config')
     if (sconfigStr) {
@@ -200,13 +200,29 @@ function _refresh (lines) {
       }, errorBox)
     }
   })).done(function () {
-    getDurations()
-    getSponsorBlock()
-    getLiveBroadcasts()
-    setTimeout(function () {
-      hiddenItemsStatus()
-    }, 1000)
+    (async () => {
+      await getDurations()
+      sortChannels()
+
+      getSponsorBlock()
+      getLiveBroadcasts()
+      setTimeout(function () {
+        hiddenItemsStatus()
+      }, 1000)
+    })()
   })
+}
+
+// put channels with visible videos first
+function sortChannels () {
+  const list = document.querySelector('#videos')
+  const listItems = Array.from(list.children)
+  listItems.sort((a, b) => {
+    // get count of videos that are not hidden
+    let aCount = a.querySelectorAll('.video:not(.would_hide)').length
+    let bCount = b.querySelectorAll('.video:not(.would_hide)').length
+    return aCount < bCount ? 1 : -1
+  }).forEach(node => list.appendChild(node))
 }
 
 function hiddenItemsStatus () {
@@ -333,25 +349,30 @@ function getSponsorBlock () {
   })
 }
 
-function getDurations () {
+async function getDurations () {
   const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
-  $.get(url, function (data) {
-    $.each(data.items, function (k, v) {
-      const duration = dayjs.duration(v.contentDetails.duration)
-      const sec = ('00' + duration.seconds().toString()).substring(duration.seconds().toString().length)
-      const min = ('00' + duration.minutes().toString()).substring(duration.minutes().toString().length)
-      let durationStr = min + ':' + sec
-      if (duration.hours() > 0) {
-        durationStr = duration.hours() + ':' + durationStr
-      }
-      // don't output duration if value already exists e.g. if live broadcast
-      if ($('#' + v.id + ' .video_duration').text() !== '') {
-        return
-      }
-      $('#' + v.id + ' .video_duration').text(durationStr)
-      if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-        $('#' + v.id).addClass('would_hide')
-      }
+  return new Promise((resolve, reject) => {
+    $.get(url, function (data) {
+      $.each(data.items, function (k, v) {
+        const duration = dayjs.duration(v.contentDetails.duration)
+        const sec = ('00' + duration.seconds().toString()).substring(duration.seconds().toString().length)
+        const min = ('00' + duration.minutes().toString()).substring(duration.minutes().toString().length)
+        let durationStr = min + ':' + sec
+        if (duration.hours() > 0) {
+          durationStr = duration.hours() + ':' + durationStr
+        }
+        // don't output duration if value already exists e.g. if live broadcast
+        if ($('#' + v.id + ' .video_duration').text() !== '') {
+          return
+        }
+        $('#' + v.id + ' .video_duration').text(durationStr)
+        if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
+          $('#' + v.id).addClass('would_hide')
+        }
+        resolve()
+      })
+    }).fail(function () {
+      reject()
     })
   })
 }
