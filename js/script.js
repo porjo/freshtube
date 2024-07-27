@@ -128,13 +128,13 @@ function refresh () {
     if (config.nextcloudURL.match(nextcloudRe) === null) {
       config.nextcloudURL += '/download'
     }
-    $.when($.get(config.nextcloudURL)).then(function (data) {
+    $.get(config.nextcloudURL, function (data) {
       lines = data.split(/\n/)
       const lines2 = $('#video_urls').val().split(/\n/)
       lines.push(...lines2)
       const uLines = new Set(lines) // Set is unique
       _refresh(Array.from(uLines))
-    }, function () {
+    }).fail(function () {
       errorBox('failed to fetch Nextcloud share link - check CORS headers')
     })
   } else {
@@ -203,13 +203,11 @@ function _refresh (lines) {
     (async () => {
       await getDurations()
       sortChannels()
-
-      getSponsorBlock()
-      getLiveBroadcasts()
-      setTimeout(function () {
-        hiddenItemsStatus()
-      }, 1000)
+      hiddenItemsStatus()
     })()
+
+    getSponsorBlock()
+    getLiveBroadcasts()
   })
 }
 
