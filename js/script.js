@@ -216,10 +216,18 @@ function sortChannels () {
   const list = document.querySelector('#videos')
   const listItems = Array.from(list.children)
   listItems.sort((a, b) => {
-    // get count of videos that are not hidden
-    let aCount = a.querySelectorAll('.video:not(.would_hide)').length
-    let bCount = b.querySelectorAll('.video:not(.would_hide)').length
-    return aCount < bCount ? 1 : -1
+    const aListNew = a.querySelectorAll('.video:not(.would_hide) .ribbon')
+    const bListNew = b.querySelectorAll('.video:not(.would_hide) .ribbon')
+    if (aListNew.length > bListNew.length) {
+      return -1
+    }
+    const aList = a.querySelectorAll('.video:not(.would_hide)')
+    const bList = b.querySelectorAll('.video:not(.would_hide)')
+    console.log(aList, bList)
+    if (aList.length > bList.length) {
+      return -1
+    }
+    return 1
   }).forEach(node => list.appendChild(node))
 }
 
