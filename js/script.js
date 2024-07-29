@@ -38,10 +38,6 @@ let config = {
   nextcloudURL: null
 }
 
-$.ajaxSetup({
-  cache: false
-})
-
 function loadConfig () {
   if (typeof (Storage) !== 'undefined') {
     const sconfigStr = localStorage.getItem('freshtube_config')
@@ -143,7 +139,69 @@ function refresh () {
   }
 }
 
-function _refresh (lines) {
+async function fetchData (url, json=true) {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`)
+  }
+  return json ? response.json() : response.text()
+}
+
+async function processLine (line) {
+  // skip empty lines and comments
+  if (line.trim() === '' || line.match(/^#/)) return
+
+  $('#settings').slideUp()
+
+  if (line.match(rssRe) !== null) {
+    try {
+      const data = await fetchData(line, false)
+      handleRSS(line, data)
+    } catch (error) {
+      errorBox(error)
+    }
+  } else {
+    let url = apiChannelURL + '&key=' + config.key
+    const chanMatches = line.match(channelRe)
+    const userMatches = line.match(userRe)
+    const handleMatches = line.match(handleRe)
+    let channelURL = 'https://www.youtube.com/'
+
+    if (chanMatches && chanMatches.length > 1) {
+      channelURL += 'channel/' + chanMatches[1]
+      url += '&id=' + chanMatches[1]
+    } else if (userMatches && userMatches.length > 1) {
+      channelURL += 'user/' + userMatches[1]
+      url += '&forUsername=' + userMatches[1]
+    } else if (handleMatches && handleMatches.length > 1) {
+      channelURL += handleMatches[1]
+      url += '&forHandle=' + handleMatches[1]
+    } else {
+      const id = line.trim()
+      if (id.length === 24) {
+        url += '&id=' + id
+        channelURL += 'channel/' + id
+      } else {
+        url += '&forUsername=' + id
+        channelURL += 'user/' + id
+      }
+    }
+
+    try {
+      const data = await fetchData(url)
+      if (typeof data !== 'undefined' && typeof data.items !== 'undefined') {
+        const playlistID = data.items[0].contentDetails.relatedPlaylists.uploads
+        const url2 = apiPlaylistURL + '&key=' + config.key + '&playlistId=' + playlistID
+        const data2 = await fetchData(url2)
+        await handlePlaylist(channelURL, data2)
+      }
+    } catch (error) {
+      errorBox(error)
+    }
+  }
+}
+
+async function _refresh (lines) {
   $('#videos').html('')
 
   // update config
@@ -162,53 +220,22 @@ function _refresh (lines) {
   // store config in local storage
   localStorage.setItem('freshtube_config', JSON.stringify(config))
 
-  $.when.apply($, lines.map(function (line) {
-    // skip empty lines and comments
-    if (line.trim() === '' || line.match(/^#/)) { return null }
-    $('#settings').slideUp()
-    if (line.match(rssRe) !== null) {
-      return $.get(line).then(function (data) {
-        handleRSS(line, data)
-      }, errorBox)
-    } else {
-      let url = apiChannelURL + '&key=' + config.key
-      const chanMatches = line.match(channelRe)
-      const userMatches = line.match(userRe)
-      const handleMatches = line.match(handleRe)
-      let channelURL = 'https://www.youtube.com/'
-      if (chanMatches && chanMatches.length > 1) {
-        channelURL += 'channel/' + chanMatches[1]
-        url += '&id=' + chanMatches[1]
-      } else if (userMatches && userMatches.length > 1) {
-        channelURL += 'user/' + userMatches[1]
-        url += '&forUsername=' + userMatches[1]
-      } else if (handleMatches && handleMatches.length > 1) {
-        channelURL += handleMatches[1]
-        url += '&forHandle=' + handleMatches[1]
-      } else {
-        const id = line.trim()
-        if (id.length === 24) {
-          url += '&id=' + id
-          channelURL += 'channel/' + id
-        } else {
-          url += '&forUsername=' + id
-          channelURL += 'user/' + id
-        }
-      }
-      return $.get(url).then(handleChannel, errorBox).then(function (data) {
-        handlePlaylist(channelURL, data)
-      }, errorBox)
-    }
-  })).done(function () {
-    (async () => {
-      await getDurations()
-      sortChannels()
-      hiddenItemsStatus()
-    })()
+  const promises = lines.map(line => processLine(line))
 
-    getSponsorBlock()
-    getLiveBroadcasts()
-  })
+  await Promise.all(promises)
+
+  try {
+    await getDurations()
+  } catch (error) {
+    console.error('Error in getDurations:', error)
+    errorBox(error)
+  }
+
+  sortChannels()
+  hiddenItemsStatus()
+
+  getSponsorBlock()
+  getLiveBroadcasts()
 }
 
 // put channels with visible videos first
@@ -223,7 +250,6 @@ function sortChannels () {
     }
     const aList = a.querySelectorAll('.video:not(.would_hide)')
     const bList = b.querySelectorAll('.video:not(.would_hide)')
-    console.log(aList, bList)
     if (aList.length > bList.length) {
       return -1
     }
@@ -245,13 +271,6 @@ function hiddenItemsStatus () {
       $(this).find('.channel_title').append(showHidden)
     }
   })
-}
-
-function handleChannel (data) {
-  if (typeof data === 'undefined' || typeof data.items === 'undefined') { return }
-  const playlistID = data.items[0].contentDetails.relatedPlaylists.uploads
-  const url = apiPlaylistURL + '&key=' + config.key + '&playlistId=' + playlistID
-  return $.get(url)
 }
 
 function handlePlaylist (apiChannelURL, data) {
