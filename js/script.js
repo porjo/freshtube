@@ -14,7 +14,7 @@ const channelRe = /youtube\.com\/channel\/([^/]+)\/?/
 const userRe = /youtube\.com\/user\/([^/]+)\/?/
 const handleRe = /youtube\.com\/(@[^/]+)\/?/
 const rssRe = /(\/feed|rss|\.xml)/
-const nextcloudRe = /\/download\/?$/
+const nextcloudRe = /s\/[a-zA-Z0-9]{15}(\/download\/?)?$/
 
 let videos = ''
 
@@ -35,7 +35,7 @@ let config = {
   hideTimeCheck: false,
   hideTimeMins: 20,
   videoClickTarget: null,
-  nextcloudURL: null
+  weblinkURL: null
 }
 
 function loadConfig () {
@@ -64,8 +64,12 @@ function loadConfig () {
       $('#hide_time_mins').val(config.hideTimeMins)
     }
     $('#vc_target').val(config.videoClickTarget)
-    if (config.lines || config.nextcloudURL) {
-      $('#nextcloud_url').val(config.nextcloudURL)
+    if (config.lines || config.weblinkURL) {
+      let weblinkURL = config.weblinkURL
+      if( weblinkURL == '' && config.nextcloudURL) {
+        weblinkURL = config.nextcloudURL
+      }
+      $('#weblink_url').val(weblinkURL)
       $('#video_urls').val(config.lines.join('\n'))
       refresh()
     }
@@ -109,7 +113,7 @@ function errorBox (data) {
   // return Promise.reject(errMsg)
 }
 
-function refresh () {
+async function refresh () {
   $('#error-box').hide()
   config.key = $('#apikey').val()
   if (config.key === '') {
@@ -118,21 +122,23 @@ function refresh () {
   }
   ytIds = []
   let lines = ''
-  config.nextcloudURL = $('#nextcloud_url').val()
-  if (config.nextcloudURL !== '') {
-    // Append /download to get raw file
-    if (config.nextcloudURL.match(nextcloudRe) === null) {
-      config.nextcloudURL += '/download'
+  config.weblinkURL = $('#weblink_url').val()
+  if (config.weblinkURL !== '') {
+    const found = config.weblinkURL.match(nextcloudRe)
+    if (found !== null && typeof found[1] === 'undefined') {
+      // Append /download to get raw file for share link
+      config.weblinkURL += '/download'
     }
-    $.get(config.nextcloudURL, function (data) {
+    try {
+      const data = await fetchData(config.weblinkURL, false)
       lines = data.split(/\n/)
       const lines2 = $('#video_urls').val().split(/\n/)
       lines.push(...lines2)
       const uLines = new Set(lines) // Set is unique
       _refresh(Array.from(uLines))
-    }).fail(function () {
-      errorBox('failed to fetch Nextcloud share link - check CORS headers')
-    })
+    } catch (error) {
+      errorBox('failed to fetch web link - check CORS headers: ' + error.message)
+    }
   } else {
     lines = $('#video_urls').val().split(/\n/)
     _refresh(lines)
@@ -142,7 +148,7 @@ function refresh () {
 async function fetchData (url, json=true) {
   const response = await fetch(url)
   if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`)
+    throw new Error(`network response was not ok: ${response.statusText}`)
   }
   return json ? response.json() : response.text()
 }
@@ -215,7 +221,7 @@ async function _refresh (lines) {
   config.hideTimeCheck = $('#hide_time_check').is(':checked')
   config.hideTimeMins = Number($('#hide_time_mins').val())
   config.videoClickTarget = $('#vc_target').val()
-  config.nextcloudURL = $('#nextcloud_url').val()
+  config.weblinkURL = $('#weblink_url').val()
 
   // store config in local storage
   localStorage.setItem('freshtube_config', JSON.stringify(config))
@@ -357,66 +363,83 @@ function handleRSS (rssURL, data) {
   $('#videos').append(videosOuter)
 }
 
-function getSponsorBlock () {
-  $.each(ytIds, function (k, videoId) {
+async function getSponsorBlock () {
+  const promises = ytIds.map(async (videoId) => {
     if (videoId.length !== 11) {
       return
     }
     const url = sponsorBlockURL + '?videoID=' + videoId
-    $.get(url, function (data, status, xhr) {
-      if (xhr.status !== 200) {
-        return
-      }
+    try {
+      const response = await fetch(url)
+      // ignore 404 not found
+      if(!response.ok){ return }
+      const data = await response.json()
       if (Array.isArray(data) && data.length > 0) {
-        $('#' + videoId + ' .sponsorblock > img').show()
+        $('.video[data-id="' + videoId + '"] .sponsorblock > img').show()
       }
-    })
+    } catch (error) {
+      errorBox('failed to fetch SponsorBlock: ' + error.message)
+    }
   })
+  await Promise.all(promises)
 }
 
-async function getDurations () {
-  const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
-  return new Promise((resolve, reject) => {
-    $.get(url, function (data) {
-      $.each(data.items, function (k, v) {
-        const duration = dayjs.duration(v.contentDetails.duration)
-        const sec = ('00' + duration.seconds().toString()).substring(duration.seconds().toString().length)
-        const min = ('00' + duration.minutes().toString()).substring(duration.minutes().toString().length)
-        let durationStr = min + ':' + sec
-        if (duration.hours() > 0) {
-          durationStr = duration.hours() + ':' + durationStr
+async function getDurations() {
+  const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',');
+
+  try {
+    const data = await fetchData(url)
+
+    data.items.forEach(v => {
+      const duration = dayjs.duration(v.contentDetails.duration);
+      const sec = ('00' + duration.seconds().toString()).slice(-2);
+      const min = ('00' + duration.minutes().toString()).slice(-2);
+      let durationStr = min + ':' + sec;
+      if (duration.hours() > 0) {
+        durationStr = duration.hours() + ':' + durationStr;
+      }
+
+      // Don't output duration if value already exists e.g. if live broadcast
+      const durationElement = document.querySelector('.video[data-id="' + v.id + '"] .video_duration');
+      if (durationElement && durationElement.textContent.trim() !== '') {
+        return;
+      }
+
+      if (durationElement) {
+        durationElement.textContent = durationStr;
+      }
+
+      if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
+        const videoElement = document.querySelector('.video[data-id="' + v.id + '"]');
+        if (videoElement) {
+          videoElement.classList.add('would_hide');
         }
-        // don't output duration if value already exists e.g. if live broadcast
-        if ($('#' + v.id + ' .video_duration').text() !== '') {
-          return
-        }
-        $('#' + v.id + ' .video_duration').text(durationStr)
-        if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-          $('#' + v.id).addClass('would_hide')
-        }
-        resolve()
-      })
-    }).fail(function () {
-      reject()
-    })
-  })
+      }
+    });
+  } catch (error) {
+    errorBox('failed to fetch durations: ' + error.message);
+  }
 }
 
-function getLiveBroadcasts () {
+async function getLiveBroadcasts () {
   const url = apiLiveBroadcastURL + '&key=' + config.key + '&id=' + ytIds.join(',')
-  $.get(url, function (data) {
-    $.each(data.items, function (k, v) {
+  try {
+    const data = await fetchData(url)
+
+    data.items.forEach(v => {
       if (v.snippet.liveBroadcastContent === 'upcoming') {
         if (config.hideFutureCheck && dayjs().add(config.hideFutureHours, 'hours').isBefore(dayjs(v.liveStreamingDetails.scheduledStartTime))) {
-          $('#' + v.id).addClass('would_hide')
+          $('.video[data-id="' + v.id + '"]').addClass('would_hide')
         }
-        $('#' + v.id + ' .video_sched').text(dayjs(v.liveStreamingDetails.scheduledStartTime).fromNow()).show()
-        $('#' + v.id + ' .video_thumb img').addClass('grey-out')
+        $('.video[data-id="' + v.id + '"] .video_sched').text(dayjs(v.liveStreamingDetails.scheduledStartTime).fromNow()).show()
+        $('.video[data-id="' + v.id + '"] .video_thumb img').addClass('grey-out')
       } else if (v.snippet.liveBroadcastContent === 'live') {
-        $('#' + v.id + ' .video_duration').html('<div class="live"><span class="glyphicon glyphicon-record"></span>&nbsp;Live</div>')
+        $('.video[data-id="' + v.id + '"] .video_duration').html('<div class="live"><span class="glyphicon glyphicon-record"></span>&nbsp;Live</div>')
       }
     })
-  })
+  } catch (error) {
+    errorBox('failed to fetch live broadcasts: ' + error.message);
+  }
 }
 
 function videoHTML (k, v) {
@@ -461,7 +484,8 @@ function videoHTML (k, v) {
     watch = watchURL + '?v=' + id
   }
   const clickURL = getClickURL(watch)
-  let video = '<a class="video' + (rssHide ? ' would_hide' : '') + '" id="' + id + '" href="' + clickURL + '" target="_blank">'
+  // Youtube ID is set in a data attribute. Using CSS ID is problematic due to some IDs starting with a number
+  let video = '<a class="video' + (rssHide ? ' would_hide' : '') + '" data-id="' + id + '" href="' + clickURL + '" target="_blank">'
   video += '<div class="video_thumb">'
   video += '<div class="video_sched"></div>'
   video += '<img src="' + v.snippet.thumbnails.medium.url + '">'

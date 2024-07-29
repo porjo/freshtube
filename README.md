@@ -6,7 +6,7 @@ Features:
 - flag new videos (since last refresh)
 - fliter display by: age, duration, future publish time
 - modify the URL that is used when clicking on a video thumbnail (by default links to Youtube)
-- source Youtube channel list from a text file hosted on Nextcloud (via shared link)
+- source Youtube channel list from a web link e.g. Nextcloud share link
 - supports RSS feed URLs aswell as Youtube
 
 
