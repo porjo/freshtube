@@ -66,8 +66,9 @@ function loadConfig () {
     $('#vc_target').val(config.videoClickTarget)
     if (config.lines || config.weblinkURL) {
       let weblinkURL = config.weblinkURL
-      if( weblinkURL == '' && config.nextcloudURL) {
+      if( typeof weblinkURL === 'undefined' && config.nextcloudURL) {
         weblinkURL = config.nextcloudURL
+        delete config.nextcloudURL
       }
       $('#weblink_url').val(weblinkURL)
       $('#video_urls').val(config.lines.join('\n'))
