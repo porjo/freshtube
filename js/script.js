@@ -16,6 +16,8 @@ const handleRe = /youtube\.com\/(@[^/]+)\/?/
 const rssRe = /(\/feed|rss|\.xml)/
 const nextcloudRe = /s\/[a-zA-Z0-9]{15}(\/download\/?)?$/
 
+const ITUNES_NAMESPACE = 'http://www.itunes.com/dtds/podcast-1.0.dtd'
+
 let videos = ''
 
 const rssItemLimit = 20
@@ -165,7 +167,7 @@ async function processLine (line) {
       const data = await fetchData(line, false)
       handleRSS(line, data)
     } catch (error) {
-      errorBox(error)
+      errorBox(error.message)
     }
   } else {
     let url = apiChannelURL + '&key=' + config.key
@@ -203,7 +205,7 @@ async function processLine (line) {
         await handlePlaylist(channelURL, data2)
       }
     } catch (error) {
-      errorBox(error)
+      errorBox(error.message)
     }
   }
 }
@@ -234,8 +236,7 @@ async function _refresh (lines) {
   try {
     await getDurations()
   } catch (error) {
-    console.error('Error in getDurations:', error)
-    errorBox(error)
+    errorBox(error.message)
   }
 
   sortChannels()
@@ -309,14 +310,16 @@ function handlePlaylist (apiChannelURL, data) {
 function handleRSS (rssURL, data) {
   if (data.length === 0) { return }
 
-  const $channel = $(data).find('channel')
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(data, 'text/xml')
+  const channel = doc.querySelector('channel')
 
-  const channelTitle = $channel.find('title:first').text()
-  const channelURL = $channel.find('link:first').text()
-  const channelImageURL = $channel.find('image:first url').text()
+  const channelTitle = channel.querySelector('title') ? channel.querySelector('title').textContent : ''
+  const channelURL = channel.querySelector('link') ? channel.querySelector('link').textContent : ''
+  const channelImageURL = channel.querySelector('image') ? channel.querySelector('image').getAttribute('url') : ''
 
   let videosOuter = ''
-  videosOuter = '<div class="channel">'
+  videosOuter += '<div class="channel">'
   videosOuter += '<div class="channel_title"><a href="' + channelURL + '" title="' + rssURL + '" target="_blank">' + channelTitle + '</a>'
   videosOuter += '<div class="close_channel"><span class="glyphicon glyphicon-remove"></span></div>'
   videosOuter += '</div>'
@@ -324,35 +327,41 @@ function handleRSS (rssURL, data) {
   videos = ''
 
   const rssVids = []
-  $channel.find('item').slice(0, rssItemLimit).each(function () {
-    const $el = $(this)
-    let itemImageURL = $el.find('itunes\\:image').attr('href')
+
+  Array.from(channel.querySelectorAll('item')).slice(0, rssItemLimit).forEach(item => {
+    const imageElements = item.getElementsByTagNameNS(ITUNES_NAMESPACE, 'image')
+    let itemImageURL = imageElements ? imageElements[0].getAttribute('href') : ''
     if (itemImageURL === '') {
       itemImageURL = channelImageURL
     }
 
-    let watchURL = $el.find('enclosure').attr('url')
+    const enclosureElement = item.querySelector('enclosure')
+    let watchURL = enclosureElement ? enclosureElement.getAttribute('url') : ''
     if (!watchURL) {
-      watchURL = $el.find('link').text()
+      watchURL = item.querySelector('link') ? item.querySelector('link').textContent : ''
     }
+
+    const durationElements = item.getElementsByTagNameNS(ITUNES_NAMESPACE, 'duration')
+    const duration = durationElements.length > 0 ? durationElements[0].textContent : ''
 
     rssVids.push({
       snippet: {
-        title: $el.find('title').text(),
+        title: item.querySelector('title') ? item.querySelector('title').textContent : '',
         resourceId: {
-          videoId: $el.find('guid').text()
+          videoId: item.querySelector('guid') ? item.querySelector('guid').textContent : ''
         },
         thumbnails: {
           medium: { url: itemImageURL }
         },
-        publishedAt: $el.find('pubDate').text(),
+        publishedAt: item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '',
         watchURL,
-        duration: $el.find('itunes\\:duration').text()
+        duration: duration
       }
     })
   })
 
-  $.each(rssVids, videoHTML)
+  rssVids.forEach(videoHTML)
+
   if (videos !== '') {
     videosOuter += videos
   } else {
@@ -386,39 +395,39 @@ async function getSponsorBlock () {
 }
 
 async function getDurations() {
-  const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',');
+  const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
 
   try {
     const data = await fetchData(url)
 
     data.items.forEach(v => {
-      const duration = dayjs.duration(v.contentDetails.duration);
-      const sec = ('00' + duration.seconds().toString()).slice(-2);
-      const min = ('00' + duration.minutes().toString()).slice(-2);
-      let durationStr = min + ':' + sec;
+      const duration = dayjs.duration(v.contentDetails.duration)
+      const sec = ('00' + duration.seconds().toString()).slice(-2)
+      const min = ('00' + duration.minutes().toString()).slice(-2)
+      let durationStr = min + ':' + sec
       if (duration.hours() > 0) {
-        durationStr = duration.hours() + ':' + durationStr;
+        durationStr = duration.hours() + ':' + durationStr
       }
 
       // Don't output duration if value already exists e.g. if live broadcast
-      const durationElement = document.querySelector('.video[data-id="' + v.id + '"] .video_duration');
+      const durationElement = document.querySelector('.video[data-id="' + v.id + '"] .video_duration')
       if (durationElement && durationElement.textContent.trim() !== '') {
-        return;
+        return
       }
 
       if (durationElement) {
-        durationElement.textContent = durationStr;
+        durationElement.textContent = durationStr
       }
 
       if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
-        const videoElement = document.querySelector('.video[data-id="' + v.id + '"]');
+        const videoElement = document.querySelector('.video[data-id="' + v.id + '"]')
         if (videoElement) {
-          videoElement.classList.add('would_hide');
+          videoElement.classList.add('would_hide')
         }
       }
-    });
+    })
   } catch (error) {
-    errorBox('failed to fetch durations: ' + error.message);
+    errorBox('failed to fetch durations: ' + error.message)
   }
 }
 
@@ -439,11 +448,11 @@ async function getLiveBroadcasts () {
       }
     })
   } catch (error) {
-    errorBox('failed to fetch live broadcasts: ' + error.message);
+    errorBox('failed to fetch live broadcasts: ' + error.message)
   }
 }
 
-function videoHTML (k, v) {
+function videoHTML (v) {
   if (config.hideOldCheck && dayjs().subtract(config.hideOldDays, 'days').isAfter(v.snippet.publishedAt)) {
     return
   }
