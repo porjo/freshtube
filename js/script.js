@@ -295,7 +295,7 @@ function handlePlaylist (apiChannelURL, data) {
   videosOuter += '</div>'
   videosOuter += '<div class="video_list">'
   videos = ''
-  $.each(data.items, videoHTML)
+  data.items.forEach(videoHTML)
   if (videos !== '') {
     videosOuter += videos
   } else {
