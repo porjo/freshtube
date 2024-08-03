@@ -246,11 +246,36 @@ async function _refresh (lines) {
   getLiveBroadcasts()
 }
 
-// put channels with visible videos first
+// channel with most recently published visible video first
+// followed by channels with any visible videos
+// followed by channels with only non-visible videos or no videos
 function sortChannels () {
   const list = document.querySelector('#videos')
   const listItems = Array.from(list.children)
   listItems.sort((a, b) => {
+    const aAges = a.querySelectorAll('.video:not(.would_hide) .age')
+    const bAges = b.querySelectorAll('.video:not(.would_hide) .age')
+    if(aAges.length == 0 && bAges.length == 0) {
+      return 0
+    }
+
+    if(aAges.length > 0 && bAges.length == 0) {
+      return -1
+    }
+    if(bAges.length > 0 && aAges.length == 0) {
+      return 1
+    }
+    if(aAges.length > 0 && bAges.length > 0) {
+      const aUnix = aAges[0].getAttribute("data-unix")
+      const bUnix = bAges[0].getAttribute("data-unix")
+    console.log(aUnix,bUnix)
+      if( aUnix > bUnix) {
+        return -1
+      } else {
+        return 1
+      }
+    }
+
     const aListNew = a.querySelectorAll('.video:not(.would_hide) .ribbon')
     const bListNew = b.querySelectorAll('.video:not(.would_hide) .ribbon')
     if (aListNew.length > bListNew.length) {
@@ -511,7 +536,8 @@ function videoHTML (v) {
   }
   video += '<div class="video_footer">'
   video += '<div class="sponsorblock"><img src="sponsorblock.png"></div>'
-  video += '<div class="age">' + dayjs(v.snippet.publishedAt).fromNow() + '</div>'
+  const publishedAt = dayjs(v.snippet.publishedAt)
+  video += '<div class="age" data-unix="' + publishedAt.unix() + '">' + publishedAt.fromNow() + '</div>'
   video += '</div>'
   if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
     video += '<div class="ribbon"><span>New</span></div>'
