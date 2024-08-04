@@ -306,7 +306,7 @@ footer, header, hgroup, menu, nav, section {
 
 .overlay {
 	display: none;
-	position: fixed;
+	position: absolute;
 	top: 0;
 	left: 0;
 	height: 100%;
@@ -316,7 +316,7 @@ footer, header, hgroup, menu, nav, section {
 }
 
 .spinner {
-	position: fixed;
+	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
