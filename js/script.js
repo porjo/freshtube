@@ -103,6 +103,7 @@ $('#save_button').click(function () {
 })
 
 function errorBox (data) {
+  $('.overlay').hide()
   window.scrollTo({ top: 0, behavior: 'smooth' })
   let errMsg = 'Unknown error occured'
   if (typeof data === 'object' && 'responseJSON' in data) {
@@ -113,7 +114,6 @@ function errorBox (data) {
     errMsg = data
   }
   $('#error-box').text('Error: ' + errMsg).show()
-  // return Promise.reject(errMsg)
 }
 
 async function refresh () {
@@ -212,6 +212,7 @@ async function processLine (line) {
 
 async function _refresh (lines) {
   $('#videos').html('')
+  $('.overlay').show()
 
   // update config
   config.lines = $('#video_urls').val().split('\n').filter(i => i) // filter ensures we don't get [""]
@@ -244,6 +245,8 @@ async function _refresh (lines) {
 
   getSponsorBlock()
   getLiveBroadcasts()
+
+  $('.overlay').hide()
 }
 
 // channel with most recently published visible video first
