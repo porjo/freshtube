@@ -68,7 +68,7 @@ function loadConfig () {
     $('#vc_target').val(config.videoClickTarget)
     if (config.lines || config.weblinkURL) {
       let weblinkURL = config.weblinkURL
-      if( typeof weblinkURL === 'undefined' && config.nextcloudURL) {
+      if (typeof weblinkURL === 'undefined' && config.nextcloudURL) {
         weblinkURL = config.nextcloudURL
         delete config.nextcloudURL
       }
@@ -148,7 +148,7 @@ async function refresh () {
   }
 }
 
-async function fetchData (url, json=true) {
+async function fetchData (url, json = true) {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`network response was not ok: ${response.statusText}`)
@@ -258,21 +258,20 @@ function sortChannels () {
   listItems.sort((a, b) => {
     const aAges = a.querySelectorAll('.video:not(.would_hide) .age')
     const bAges = b.querySelectorAll('.video:not(.would_hide) .age')
-    if(aAges.length == 0 && bAges.length == 0) {
+    if (aAges.length === 0 && bAges.length === 0) {
       return 0
     }
 
-    if(aAges.length > 0 && bAges.length == 0) {
+    if (aAges.length > 0 && bAges.length === 0) {
       return -1
     }
-    if(bAges.length > 0 && aAges.length == 0) {
+    if (bAges.length > 0 && aAges.length === 0) {
       return 1
     }
-    if(aAges.length > 0 && bAges.length > 0) {
-      const aUnix = aAges[0].getAttribute("data-unix")
-      const bUnix = bAges[0].getAttribute("data-unix")
-    console.log(aUnix,bUnix)
-      if( aUnix > bUnix) {
+    if (aAges.length > 0 && bAges.length > 0) {
+      const aUnix = aAges[0].getAttribute('data-unix')
+      const bUnix = bAges[0].getAttribute('data-unix')
+      if (aUnix > bUnix) {
         return -1
       } else {
         return 1
@@ -383,7 +382,7 @@ function handleRSS (rssURL, data) {
         },
         publishedAt: item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '',
         watchURL,
-        duration: duration
+        duration
       }
     })
   })
@@ -410,7 +409,7 @@ async function getSponsorBlock () {
     try {
       const response = await fetch(url)
       // ignore 404 not found
-      if(!response.ok){ return }
+      if (!response.ok) { return }
       const data = await response.json()
       if (Array.isArray(data) && data.length > 0) {
         $('.video[data-id="' + videoId + '"] .sponsorblock > img').show()
@@ -422,7 +421,7 @@ async function getSponsorBlock () {
   await Promise.all(promises)
 }
 
-async function getDurations() {
+async function getDurations () {
   const url = apiDurationURL + '&key=' + config.key + '&id=' + ytIds.join(',')
 
   try {
@@ -437,17 +436,13 @@ async function getDurations() {
         durationStr = duration.hours() + ':' + durationStr
       }
 
-      // Don't output duration if value already exists e.g. if live broadcast
       const durationElement = document.querySelector('.video[data-id="' + v.id + '"] .video_duration')
-      if (durationElement && durationElement.textContent.trim() !== '') {
-        return
-      }
-
       if (durationElement) {
         durationElement.textContent = durationStr
       }
 
-      if (config.hideTimeCheck && duration.as('minutes') < config.hideTimeMins) {
+      const minutes = duration.as('minutes')
+      if (config.hideTimeCheck && minutes > 0 && minutes < config.hideTimeMins) {
         const videoElement = document.querySelector('.video[data-id="' + v.id + '"]')
         if (videoElement) {
           videoElement.classList.add('would_hide')
