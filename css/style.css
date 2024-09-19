@@ -85,6 +85,7 @@ footer, header, hgroup, menu, nav, section {
 .video_list {
 	display: flex;
 	align-items: stretch;
+	overflow-y: auto
 }
 
 .channel_title {
@@ -110,7 +111,7 @@ footer, header, hgroup, menu, nav, section {
 	border: 1px solid #bbb;
 	background: #eee;
 	padding: 0;
-	margin-right: 5px;
+	margin-right: 8px;
 	width: 200px;
 	min-width: 100px;
 	font-size: 0.9em;
