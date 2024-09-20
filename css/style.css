@@ -70,27 +70,38 @@ footer, header, hgroup, menu, nav, section {
 }
 
 .channel {
-	padding: 10px;
 	position: relative;
 	margin-top: 20px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
 }
 
+/*
 @media (max-width: 800px) {
 	.channel {
 		padding: unset;
 		padding-top: 5px;
 	}
 }
+*/
 
 .video_list {
 	display: flex;
 	align-items: stretch;
-	overflow-y: auto
+	overflow-y: auto;
+	padding: 5px;
 }
 
 .channel_title {
 	font-size: 1.2em;
 	font-weight: bold;
+	display: flex;
+	justify-content: space-between;
+	/* border-bottom: 1px solid #aaa; */
+	/* margin-bottom: 5px; */
+	align-items: flex-end;
+	background-color: #eee;
+	padding: 5px;
 }
 
 #footer {
@@ -108,7 +119,6 @@ footer, header, hgroup, menu, nav, section {
 
 .video {
 	position: relative;
-	border: 1px solid #bbb;
 	background: #eee;
 	padding: 0;
 	margin-right: 8px;
@@ -122,12 +132,14 @@ footer, header, hgroup, menu, nav, section {
 	cursor: pointer;
 }
 
+/*
 .video:hover {
 	box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
 	transform: scale(105%);
 	transition: transform 50ms;
 	z-index: 1;
 }
+*/
 
 .video_title {
 	padding: 3px;

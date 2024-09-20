@@ -86,10 +86,6 @@ if (config.key === '') {
   $('#settings').slideDown()
 }
 
-$('body').on('click', '.close_channel', function () {
-  $(this).closest('.channel').slideUp()
-})
-
 $('body').on('click', '.show_hidden', function () {
   $(this).closest('.channel').find('.would_hide').slideToggle(200)
 })
@@ -302,7 +298,7 @@ function hiddenItemsStatus () {
     })
 
     if (hiddenVids) {
-      const showHidden = $('<div class="show_hidden"><span class="glyphicon glyphicon-eye-open"></span></div>')
+      const showHidden = $('<span class="show_hidden glyphicon glyphicon-eye-open"></span>')
       $(this).find('.channel_title').append(showHidden)
     }
   })
@@ -318,7 +314,6 @@ function handlePlaylist (apiChannelURL, data) {
   let videosOuter = '<div class="channel">'
   const channelTitle = data.items[0].snippet.channelTitle
   videosOuter += '<div class="channel_title"><a href="' + apiChannelURL + '/videos" target="_blank">' + channelTitle + '</a>'
-  videosOuter += '<div class="close_channel"><span class="glyphicon glyphicon-remove"></span></div>'
   videosOuter += '</div>'
   videosOuter += '<div class="video_list">'
   videos = ''
@@ -348,7 +343,6 @@ function handleRSS (rssURL, data) {
   let videosOuter = ''
   videosOuter += '<div class="channel">'
   videosOuter += '<div class="channel_title"><a href="' + channelURL + '" title="' + rssURL + '" target="_blank">' + channelTitle + '</a>'
-  videosOuter += '<div class="close_channel"><span class="glyphicon glyphicon-remove"></span></div>'
   videosOuter += '</div>'
   videosOuter += '<div class="video_list">'
   videos = ''
