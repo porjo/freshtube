@@ -72,8 +72,6 @@ footer, header, hgroup, menu, nav, section {
 .channel {
 	position: relative;
 	margin-top: 20px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
 }
 
 /*
@@ -97,11 +95,10 @@ footer, header, hgroup, menu, nav, section {
 	font-weight: bold;
 	display: flex;
 	justify-content: space-between;
-	/* border-bottom: 1px solid #aaa; */
-	/* margin-bottom: 5px; */
 	align-items: flex-end;
-	background-color: #eee;
 	padding: 5px;
+	background: linear-gradient(#ececec,#fff);
+	border-radius: 5px;
 }
 
 #footer {
