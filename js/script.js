@@ -172,9 +172,9 @@ class VideoManager {
     $('#settings').slideUp()
 
     if (RegexPatterns.RSS.test(line)) {
-      await this.handleRSS(line)
+      return this.handleRSS(line)
     } else {
-      await this.handleYouTubeChannel(line)
+      return this.handleYouTubeChannel(line)
     }
   }
 
@@ -307,7 +307,7 @@ class VideoManager {
         uiManager.showError(`failed to fetch SponsorBlock: ${error.message}`)
       }
     })
-    await Promise.all(promises)
+    return Promise.all(promises)
   }
 
   async getDurations () {
