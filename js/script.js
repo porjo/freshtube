@@ -53,18 +53,18 @@ async function loadConfig () {
     $('#apikey').val(config.key)
     $('#highlight_new').prop('checked', config.highlightNew)
     $('#hide_old_check').prop('checked', config.hideOldCheck)
-    if (config.hideOldDays > 0) {
+    if (config.hideOldDays) {
       $('#hide_old_days').val(config.hideOldDays)
     }
     $('#hide_future_check').prop('checked', config.hideFutureCheck)
-    if (config.hideFutureHours > 0) {
+    if (config.hideFutureHours) {
       $('#hide_future_hours').val(config.hideFutureHours)
     }
     $('#hide_time_check').prop('checked', config.hideTimeCheck)
-    if (config.hideTimeMins > 0) {
+    if (config.hideTimeMins) {
       $('#hide_time_mins').val(config.hideTimeMins)
     }
-    if (config.cacheResultMins > 0) {
+    if (config.cacheResultMins) {
       $('#cache_result_mins').val(config.cacheResultMins)
     }
     $('#vc_target').val(config.videoClickTarget)
