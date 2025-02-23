@@ -22,8 +22,6 @@ let videos = ''
 
 const rssItemLimit = 20
 
-let lastRefresh = null
-
 let ytIds = []
 
 let config = {
@@ -37,20 +35,21 @@ let config = {
   hideTimeCheck: false,
   hideTimeMins: 20,
   videoClickTarget: null,
-  weblinkURL: null
+  weblinkURL: null,
+  cacheResultMins: 15,
+  cachedResult: null
 }
 
-function loadConfig () {
+async function loadConfig () {
   if (typeof (Storage) !== 'undefined') {
     const sconfigStr = localStorage.getItem('freshtube_config')
     if (sconfigStr) {
-      config = JSON.parse(sconfigStr)
+      // merge default config with stored config (stored takes precedence)
+      config = { ...config, ...JSON.parse(sconfigStr) }
     } else {
       return
     }
 
-    lastRefresh = config.lastRefresh
-    // console.log(sconfigStr, config)
     $('#apikey').val(config.key)
     $('#highlight_new').prop('checked', config.highlightNew)
     $('#hide_old_check').prop('checked', config.hideOldCheck)
@@ -65,6 +64,9 @@ function loadConfig () {
     if (config.hideTimeMins > 0) {
       $('#hide_time_mins').val(config.hideTimeMins)
     }
+    if (config.cacheResultMins > 0) {
+      $('#cache_result_mins').val(config.cacheResultMins)
+    }
     $('#vc_target').val(config.videoClickTarget)
     if (config.lines || config.weblinkURL) {
       let weblinkURL = config.weblinkURL
@@ -74,9 +76,23 @@ function loadConfig () {
       }
       $('#weblink_url').val(weblinkURL)
       $('#video_urls').val(config.lines.join('\n'))
-      refresh()
+
+      console.time('cache')
+      // Only refresh if cache expired
+      if (!config.cacheResultMins || !config.lastRefresh || dayjs().subtract(config.cacheResultMins, 'minutes').isAfter(config.lastRefresh)) {
+        try {
+          await refresh()
+        } catch (error) {
+          errorBox('failed to refresh: ' + error.message)
+        }
+        const html = $('#videos').html()
+        config.cachedResult = html
+      } else {
+        $('#videos').html(config.cachedResult)
+      }
+      console.timeLog('cache', 'content loaded')
     }
-    // Don't put anything here - refresh() should happen last
+    saveConfig()
   }
 }
 
@@ -94,8 +110,9 @@ $('#settings_button').click(function () {
   $('#settings').slideToggle(200)
 })
 
-$('#save_button').click(function () {
-  refresh()
+$('#save_button').click(async function () {
+  await refresh()
+  saveConfig()
 })
 
 function errorBox (data) {
@@ -134,13 +151,13 @@ async function refresh () {
       const lines2 = $('#video_urls').val().split(/\n/)
       lines.push(...lines2)
       const uLines = new Set(lines) // Set is unique
-      _refresh(Array.from(uLines))
+      await _refresh(Array.from(uLines))
     } catch (error) {
       errorBox('failed to fetch web link - check CORS headers: ' + error.message)
     }
   } else {
     lines = $('#video_urls').val().split(/\n/)
-    _refresh(lines)
+    await _refresh(lines)
   }
 }
 
@@ -206,10 +223,7 @@ async function processLine (line) {
   }
 }
 
-async function _refresh (lines) {
-  $('#videos').html('')
-  $('.overlay').show()
-
+function saveConfig () {
   // update config
   config.lines = $('#video_urls').val().split('\n').filter(i => i) // filter ensures we don't get [""]
   config.highlightNew = $('#highlight_new').is(':checked')
@@ -222,25 +236,25 @@ async function _refresh (lines) {
   config.hideTimeMins = Number($('#hide_time_mins').val())
   config.videoClickTarget = $('#vc_target').val()
   config.weblinkURL = $('#weblink_url').val()
+  config.cacheResultMins = $('#cache_result_mins').val()
 
   // store config in local storage
   localStorage.setItem('freshtube_config', JSON.stringify(config))
+}
+
+async function _refresh (lines) {
+  $('#videos').html('')
+  $('.overlay').show()
 
   const promises = lines.map(line => processLine(line))
 
   await Promise.all(promises)
-
-  try {
-    await getDurations()
-  } catch (error) {
-    errorBox(error.message)
-  }
+  await getDurations()
 
   sortChannels()
   hiddenItemsStatus()
 
-  getSponsorBlock()
-  getLiveBroadcasts()
+  await Promise.all([getSponsorBlock(), getLiveBroadcasts()])
 
   $('.overlay').hide()
 }
@@ -531,7 +545,7 @@ function videoHTML (v) {
   const publishedAt = dayjs(v.snippet.publishedAt)
   video += '<div class="age" data-unix="' + publishedAt.unix() + '">' + publishedAt.fromNow() + '</div>'
   video += '</div>'
-  if (lastRefresh && config.highlightNew && dayjs(lastRefresh).isBefore(v.snippet.publishedAt)) {
+  if (config.lastRefresh && config.highlightNew && dayjs(config.lastRefresh).isBefore(v.snippet.publishedAt)) {
     video += '<div class="ribbon"><span>New</span></div>'
   }
   video += '</a>'
