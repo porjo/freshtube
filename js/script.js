@@ -502,6 +502,7 @@ function pad (n, width, z = '0') {
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n
 }
 
+// Credit: https://stackoverflow.com/a/9640417/202311
 function hmsToSecondsOnly (str) {
   const p = str.split(':')
   let s = 0
