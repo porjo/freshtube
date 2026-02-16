@@ -18,6 +18,7 @@ class YouTubeAPIConstants {
 
 class RegexPatterns {
   static CHANNEL = /youtube\.com\/channel\/([^/]+)\/?/
+  static CHANNEL_NAME = /youtube\.com\/c\/([^/]+)\/?/
   static USER = /youtube\.com\/user\/([^/]+)\/?/
   static HANDLE = /youtube\.com\/(@[^/]+)\/?/
   static RSS = /(\/feed|rss|\.xml)/
@@ -244,6 +245,7 @@ class VideoManager {
     let url = `${YouTubeAPIConstants.CHANNEL_URL}&key=${this.configManager.config.key}`
     let channelURL = 'https://www.youtube.com/'
     const chanMatches = line.match(RegexPatterns.CHANNEL)
+    const chanNameMatches = line.match(RegexPatterns.CHANNEL_NAME)
     const userMatches = line.match(RegexPatterns.USER)
     const handleMatches = line.match(RegexPatterns.HANDLE)
 
@@ -256,6 +258,10 @@ class VideoManager {
     } else if (handleMatches?.[1]) {
       channelURL += handleMatches[1]
       url += `&forHandle=${handleMatches[1]}`
+    } else if (chanNameMatches?.[1]) {
+      // try channel name as handle
+      channelURL += chanNameMatches[1]
+      url += `&forHandle=${chanNameMatches[1]}`
     } else {
       const id = line.trim()
       url += id.length === 24 ? `&id=${id}` : `&forUsername=${id}`
