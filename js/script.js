@@ -497,8 +497,8 @@ $(document).ready(() => {
   $('#settings_button').click(() => $('#settings').slideToggle(200))
 
   $('#save_button').click(async () => {
-    await videoManager.refresh()
     configManager.save()
+    await videoManager.refresh()
   })
 })
 
