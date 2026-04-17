@@ -196,7 +196,7 @@ class VideoManager {
 
       const channelTitle = channel.querySelector('title')?.textContent || ''
       const channelURL = channel.querySelector('link')?.textContent || ''
-      const channelImageURL = channel.querySelector('image')?.getAttribute('url') || ''
+      const channelImageURL = channel.querySelector('image url')?.textContent || ''
 
       let videosOuter = `<div class="channel">
                 <div class="channel_title"><a href="${channelURL}" title="${line}" target="_blank">${channelTitle}</a></div>
@@ -220,6 +220,7 @@ class VideoManager {
 
   processRSSItem (item, channelImageURL) {
     const imageElements = item.getElementsByTagNameNS(YouTubeAPIConstants.ITUNES_NAMESPACE, 'image')
+    // item image overrides any channel image
     const itemImageURL = imageElements.length ? imageElements[0].getAttribute('href') : channelImageURL
 
     const enclosureElement = item.querySelector('enclosure')
