@@ -20,9 +20,9 @@ class RegexPatterns {
   static CHANNEL = /youtube\.com\/channel\/([^/]+)\/?/
   static CHANNEL_NAME = /youtube\.com\/c\/([^/]+)\/?/
   static USER = /youtube\.com\/user\/([^/]+)\/?/
-  static HANDLE = /youtube\.com\/(@[^/]+)\/?/
+  static HANDLE = /(?:youtube\.com\/)?(@[^/]+)\/?/
   static RSS = /(\/feed|rss|\.xml)/
-  static NEXTCLOUD = /s\/[a-zA-Z0-9]{15}(\/download\/?)?$/
+  static NEXTCLOUD = /s\/[a-zA-Z0-9]{15}(\/download\/?)?/
 }
 
 class ConfigManager {
