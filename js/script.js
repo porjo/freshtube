@@ -60,6 +60,7 @@ class ConfigManager {
   }
 
   save () {
+    this.config.key = $('#apikey').val()
     this.config.lines = $('#video_urls').val().split('\n').filter(i => i)
     this.config.highlightNew = $('#highlight_new').is(':checked')
     this.config.lastRefresh = dayjs().toISOString()
